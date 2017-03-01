@@ -1,5 +1,5 @@
 public class Tomograph {
-    private final int alfa;
+    private final float alfa;
     private final int steps;
     private final int beta;
     private final int radius;
@@ -9,11 +9,11 @@ public class Tomograph {
 
     private class Emitter {
         private int computePosX(int i) {
-            return (int) (Math.cos(alfa * i) * radius);
+            return (int) (Math.cos((alfa * Math.PI)/180 * i) * radius);
         }
 
         private int computePosY(int i) {
-            return (int) (Math.cos(alfa * i) * radius);
+            return (int) (Math.sin((alfa * Math.PI)/180 * i) * radius);
         }
     }
 
@@ -28,16 +28,16 @@ public class Tomograph {
             return sensorsCount;
         }
 
-        private int computeSensorPosX(int sensorIndex) {
-            return (int) (Math.cos(alfa + 180 - beta/2 + sensorIndex*beta/sensorsCount) * radius);
+        private int computeSensorPosX(int i, int sensorIndex) {
+            return (int) (Math.cos((i * alfa + 180 - beta/2 + sensorIndex*beta/(sensorsCount - 1)) * Math.PI/180) * radius);
         }
 
-        private int computeSensorPosY(int sensorIndex) {
-            return (int) (Math.sin(alfa + 180 - beta/2 + sensorIndex*beta/sensorsCount) * radius);
+        private int computeSensorPosY(int i, int sensorIndex) {
+            return (int) (Math.sin((i * alfa + 180 - beta/2 + sensorIndex*beta/(sensorsCount - 1)) * Math.PI/180) * radius);
         }
     }
 
-    public Tomograph(int alfa, int beta, int detectorCount, int radius) {
+    public Tomograph(float alfa, int beta, int detectorCount, int radius) {
         this.alfa = alfa;
         this.steps = computeSteps(alfa);
         this.beta = beta;
@@ -47,7 +47,7 @@ public class Tomograph {
     }
 
     // TODO normalizacja alfy (czy musimy na całych 360 stopniach?, czy musi być podzielne)
-    private int computeSteps(int angle) {
+    private int computeSteps(float angle) {
         double count = Math.ceil(360 / angle);
         return (int) count;
     }
@@ -69,11 +69,11 @@ public class Tomograph {
         return emitter.computePosY(i);
     }
 
-    public int getDetectorsSensorPosX(int i) {
-        return detector.computeSensorPosX(i);
+    public int getDetectorsSensorPosX(int i, int sensorIndex) {
+        return detector.computeSensorPosX(i, sensorIndex);
     }
 
-    public int getDetectorsSensorPosY(int i) {
-        return detector.computeSensorPosY(i);
+    public int getDetectorsSensorPosY(int i, int sensorIndex) {
+        return detector.computeSensorPosY(i, sensorIndex);
     }
 }
