@@ -121,6 +121,7 @@ public class Sinogram {
     }
 
     public void saveSinogramAsImage() {
+        // TODO ulepszyć normalizację w matrixie
         float max = 0.0f;
         float min = Float.POSITIVE_INFINITY;
         for(int i=0; i< matrix.size(); i++) {
@@ -132,12 +133,13 @@ public class Sinogram {
 
 
         try {
-            BufferedImage image = new BufferedImage(matrix.get(0).size(), matrix.size(),BufferedImage.TYPE_INT_RGB );
+            // TODO ulepszyć rozmiar obrazu
+            BufferedImage image = new BufferedImage(matrix.size(), matrix.get(0).size(), BufferedImage.TYPE_INT_RGB );
             for(int i=0; i< matrix.size(); i++) {
                 for(int j=0; j< matrix.get(i).size(); j++) {
                     int a = (int)(normalize(matrix.get(i).get(j), max, min) * 255);
                     Color newColor = new Color(a,a,a);
-                    image.setRGB(j,i,newColor.getRGB());
+                    image.setRGB(i,j,newColor.getRGB());
                 }
             }
             File output = new File("GrayScale.jpg");

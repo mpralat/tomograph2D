@@ -46,10 +46,10 @@ public class Tomograph {
         this.detector = new Detector(detectorCount);
     }
 
-    // TODO normalizacja alfy (czy musimy na całych 360 stopniach?, czy musi być podzielne)
+    // TODO normalizacja alfy (czy musimy na całych 180 stopniach?, czy musi być podzielne)
     private int computeSteps(float angle) {
         double count = Math.ceil(360 / angle);
-        return (int) count;
+        return (int) (count / 2);       // 0 - 180 deg.
     }
 
 

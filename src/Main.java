@@ -8,14 +8,13 @@ public class Main {
 
     public static void main(String[] args) {
         final float alfa = 0.2f;
-        final int beta = 179;
-        final int detectorCount = 2000;
+        final int beta = 180;
+        final int detectorCount = 500;
 
         Sinogram sinogram = new Sinogram();
         Tomograph tomograph = new Tomograph(alfa, beta, detectorCount, sinogram.getImageSize()/2 - 1);
 
-        // TODO pozbyć się podzielić na 2
-        for (int step = 0; step < tomograph.getSteps()/2; step++) {
+        for (int step = 0; step < tomograph.getSteps(); step++) {
             int emitterPosX = tomograph.getEmitterPosX(step);
             int emitterPosY = tomograph.getEmitterPosY(step);
             ArrayList<Float> row = new ArrayList<>();
