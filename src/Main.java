@@ -12,6 +12,11 @@ public class Main {
         } catch (IOException e) {
             System.out.println("Error reading file!");
         }
-        System.out.println(img);
+        for (int y = 0; y < img.getHeight(); y++) {
+            for (int x = 0; x < img.getWidth(); x++) {
+                System.out.printf("%d ", img.getRGB(x,y)& 0xFF);
+            }
+            System.out.println();
+        }
     }
 }
