@@ -9,11 +9,11 @@ public class Tomograph {
 
     private class Emitter {
         private int computePosX(int i) {
-            return (int) (Math.cos((alfa * Math.PI)/180 * i) * radius);
+            return (int) (Math.ceil(Math.cos((alfa * Math.PI)/180 * i) * radius));
         }
 
         private int computePosY(int i) {
-            return (int) (Math.sin((alfa * Math.PI)/180 * i) * radius);
+            return (int) (Math.ceil(Math.sin((alfa * Math.PI)/180 * i) * radius));
         }
     }
 
@@ -29,11 +29,11 @@ public class Tomograph {
         }
 
         private int computeSensorPosX(int i, int sensorIndex) {
-            return (int) (Math.cos((i * alfa + 180 - beta/2 + sensorIndex*beta/(sensorsCount - 1)) * Math.PI/180) * radius);
+            return (int) (Math.ceil(Math.cos((i * alfa + 180 - beta/2 + sensorIndex*beta/(sensorsCount - 1)) * Math.PI/180) * radius));
         }
 
         private int computeSensorPosY(int i, int sensorIndex) {
-            return (int) (Math.sin((i * alfa + 180 - beta/2 + sensorIndex*beta/(sensorsCount - 1)) * Math.PI/180) * radius);
+            return (int) (Math.ceil(Math.sin((i * alfa + 180 - beta/2 + sensorIndex*beta/(sensorsCount - 1)) * Math.PI/180) * radius));
         }
     }
 
@@ -49,7 +49,7 @@ public class Tomograph {
     // TODO normalizacja alfy (czy musimy na całych 180 stopniach?, czy musi być podzielne)
     private int computeSteps(float angle) {
         double count = Math.ceil(360 / angle);
-        return (int) (count / 2);       // 0 - 180 deg.
+        return (int) (count / 2) + 1;       // 0 - 180 deg.
     }
 
 

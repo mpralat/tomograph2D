@@ -51,7 +51,8 @@ public class Sinogram {
         return ((value - min)/(max -min));
     }
 
-    public float BresenhamAlgorithm(int emitterPosX, int emitterPosY, int sensorPosX, int sensorPosY) {
+    public float BresenhamAlgorithm(int emitterPosX, int emitterPosY, int sensorPosX, int sensorPosY) throws IOException {
+
         float colour_value = 0.0f;
         float RGBValue = 0.0f;
 
