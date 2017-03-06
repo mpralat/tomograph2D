@@ -10,7 +10,7 @@ public class Sinogram {
     private ArrayList<ArrayList<Float>> matrix;
 
     public Sinogram() {
-        this.imageManager = new ImageManager("test_image.png");
+        this.imageManager = new ImageManager("res/test_image.png");
         this.matrix = new ArrayList<>();
     }
 
