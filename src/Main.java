@@ -12,34 +12,26 @@ public class Main {
         Tomograph tomograph = new Tomograph(alfa, beta, detectorCount, sinogram.getInputImageSize()/2 - 1);
         sinogram.initializeSinogramMatrix(tomograph.getSteps(), tomograph.getDetectorsSensorsCount());
 
-        // create sinogram of object
-        for (int step = 0; step < tomograph.getSteps(); step++) {                                           // emitters count
-            int emitterPosX = tomograph.getEmitterPosX(step);
-            int emitterPosY = tomograph.getEmitterPosY(step);
-            //System.out.println("---------------- " + step + " ------------------------");
-            //System.out.println("emitterPosX = " + emitterPosX + "emitterPosY = " + emitterPosY);
+        for (int step = 0; step < tomograph.getSteps(); step++) {
             float row[] = new float[tomograph.getDetectorsSensorsCount()];
-            for (int sensorIndex = 0; sensorIndex < tomograph.getDetectorsSensorsCount(); sensorIndex++) {  // detectors count
-                int sensorPosX = tomograph.getDetectorsSensorPosX(step, sensorIndex);
-                int sensorPosY = tomograph.getDetectorsSensorPosY(step, sensorIndex);
-                //System.out.println("sensorPosX = " + sensorPosX + "sensorPosY = " + sensorPosY);
-                row[sensorIndex] = sinogram.BresenhamAlgorithm(emitterPosX, emitterPosY, sensorPosX, sensorPosY);
+            for (int sensorIndex = 0; sensorIndex < tomograph.getDetectorsSensorsCount(); sensorIndex++) {
+
+                row[sensorIndex] = sinogram.BresenhamAlgorithm(step, sensorIndex, tomograph, true);
             }
             sinogram.insertRowToMatrix(row, step);
         }
 
+        // save and filter singoram
         sinogram.SinogramToImage();
-
         System.out.println("Sinogram saved as image");
 
         for (int emitter = 0; emitter < sinogram.sinogramMatrix.length; emitter++) {
             for (int detector = 0; detector < sinogram.sinogramMatrix[0].length; detector++) {
-                sinogram.BresenhamAlgorithm2(tomograph.getEmitterPosX(emitter), tomograph.getEmitterPosY(emitter),
-                        tomograph.getDetectorsSensorPosX(emitter, detector), tomograph.getDetectorsSensorPosY(emitter, detector),
-                        emitter, detector);
+                sinogram.BresenhamAlgorithm(emitter, detector, tomograph, false);
             }
         }
-        System.out.println("output ready to be saved");
+
+        // save result
         sinogram.saveOutputImage("output.jpg");
     }
 }

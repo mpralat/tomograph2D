@@ -61,11 +61,14 @@ public class Sinogram {
         return ((value - min)/(max -min));
     }
 
-    public float BresenhamAlgorithm(int emitterPosX, int emitterPosY, int sensorPosX, int sensorPosY) throws IOException {
+    public float BresenhamAlgorithm(int emitterIndex, int sensorIndex, Tomograph tomograph, boolean sinogramCreation) throws IOException {
         float colour_value = 0.0f;
         float RGBValue = 0.0f;
-
         //System.out.println("sensorPosX = " + sensorPosX + " sensorPosY = " + sensorPosY);
+        int emitterPosX = tomograph.getEmitterPosX(emitterIndex);
+        int emitterPosY = tomograph.getEmitterPosY(emitterIndex);
+        int sensorPosX = tomograph.getDetectorsSensorPosX(emitterIndex, sensorIndex);
+        int sensorPosY = tomograph.getDetectorsSensorPosY(emitterIndex, sensorIndex);
 
         int d, dx, dy, ai, bi, xi, yi;
         int x = emitterPosX, y = emitterPosY;
@@ -85,9 +88,11 @@ public class Sinogram {
             yi = -1;
             dy = emitterPosY - sensorPosY;
         }
-
-        RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
-        colour_value += normalize(RGBValue, 255.0f, 0.0f);
+//
+//        RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
+//        colour_value += normalize(RGBValue, 255.0f, 0.0f);
+        if(sinogramCreation) colour_value+=sinogramCreation(x,y);
+        else sinogramReversion(x,y,emitterIndex,sensorIndex);
 
         // OX axis
         if (dx > dy) {
@@ -104,8 +109,8 @@ public class Sinogram {
                     d += bi;
                     x += xi;
                 }
-                RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
-                colour_value += normalize(RGBValue, 255.0f, 0.0f);
+                if(sinogramCreation) colour_value+=sinogramCreation(x,y);
+                else sinogramReversion(x,y,emitterIndex,sensorIndex);
             }
         }
         // OY axis
@@ -123,82 +128,20 @@ public class Sinogram {
                     d += bi;
                     y += yi;
                 }
-                RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
-                colour_value += normalize(RGBValue, 255.0f, 0.0f);
+                if(sinogramCreation) colour_value+=sinogramCreation(x,y);
+                else sinogramReversion(x,y,emitterIndex,sensorIndex);
             }
         }
         return colour_value;
     }
+    public float sinogramCreation(int x, int y){
+        float RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
+        return normalize(RGBValue, 255.0f, 0.0f);
+    }
 
-
-
-    //-----------------------------------------------------------------------------------
-
-    public void BresenhamAlgorithm2(int emitterPosX, int emitterPosY, int sensorPosX, int sensorPosY, int emmiterIndex, int sensorIndex) throws IOException {
-        int d, dx, dy, ai, bi, xi, yi;
-        int x = emitterPosX, y = emitterPosY;
-        // x way of drawing
-        if (emitterPosX < sensorPosX) {
-            xi = 1;
-            dx = sensorPosX - emitterPosX;
-        } else {
-            xi = -1;
-            dx = emitterPosX - sensorPosX;
-        }
-        // y way of drawing
-        if (emitterPosY < sensorPosY) {
-            yi = 1;
-            dy = sensorPosY - emitterPosY;
-        } else {
-            yi = -1;
-            dy = emitterPosY - sensorPosY;
-        }
-
+    public void sinogramReversion(int x, int y, int emitterIndex, int sensorIndex){
         imageManager.forOutputImageMatrix[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1]
-                += sinogramMatrix[emmiterIndex][sensorIndex];
-        imageManager.forOutputImageMatrixFlag[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1] = true;
-
-        // OX axis
-        if (dx > dy) {
-            ai = (dy - dx) * 2;
-            bi = dy * 2;
-            d = bi - dx;
-            // iterate x
-            while (x != sensorPosX) {
-                if (d >= 0) {
-                    x += xi;
-                    y += yi;
-                    d += ai;
-                } else {
-                    d += bi;
-                    x += xi;
-                }
-                imageManager.forOutputImageMatrix[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1]
-                        += sinogramMatrix[emmiterIndex][sensorIndex];
-                imageManager.forOutputImageMatrixFlag[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1] = true;
-            }
-        }
-        // OY axis
-        else {
-            ai = (dx - dy) * 2;
-            bi = dx * 2;
-            d = bi - dy;
-            // iterate y
-            while (y != sensorPosY) {
-                if (d >= 0) {
-                    x += xi;
-                    y += yi;
-                    d += ai;
-                } else {
-                    d += bi;
-                    y += yi;
-                }
-                imageManager.forOutputImageMatrix[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1]
-                        += sinogramMatrix[emmiterIndex][sensorIndex];
-                imageManager.forOutputImageMatrixFlag[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1] = true;
-            }
-        }
-        return;
+                += sinogramMatrix[emitterIndex][sensorIndex];
     }
 
     public void SinogramToImage() {
