@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class Sinogram {
     private final ImageManager imageManager;
-    public float sinogramMatrix[][];
+    public float[][] sinogramMatrix;
 
     public Sinogram() {
         this.imageManager = new ImageManager("test_image.png");
@@ -16,13 +16,13 @@ public class Sinogram {
     public void initializeSinogramMatrix(int steps, int detectorsSensorsCount) {
         this.sinogramMatrix = new float[steps][detectorsSensorsCount];
     }
-    
+
     private class ImageManager {
         private final BufferedImage inputImage;
         // TODO wywalić imageOutput, wywalić macierz?
         //private BufferedImage outputImage;
-        private float forOutputImageMatrix[][];
-        private boolean forOutputImageMatrixFlag[][];
+        private float[][] forOutputImageMatrix;
+        private boolean[][] forOutputImageMatrixFlag;
 
         private ImageManager(String imagePath) {
             this.inputImage = readInputImage(imagePath);
