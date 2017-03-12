@@ -1,3 +1,4 @@
+
 public class Tomograph {
     private final float alfa;
     private final int steps;

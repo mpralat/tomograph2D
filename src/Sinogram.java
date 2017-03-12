@@ -1,3 +1,5 @@
+
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -7,8 +9,10 @@ import java.io.IOException;
 public class Sinogram {
     private final ImageManager imageManager;
     public float[][] sinogramMatrix;
+    private final Controller controller;
 
-    public Sinogram() {
+    public Sinogram(Controller controller) {
+        this.controller = controller;
         this.imageManager = new ImageManager("test_image.png");
         // TODO private sinogramMatrix
     }
