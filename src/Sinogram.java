@@ -7,6 +7,7 @@ import java.io.IOException;
 public class Sinogram {
     private final ImageManager imageManager;
     public float[][] sinogramMatrix;
+    int[][] sumCount;
 
     public Sinogram() {
         this.imageManager = new ImageManager("test_image.png");
@@ -15,6 +16,7 @@ public class Sinogram {
 
     public void initializeSinogramMatrix(int steps, int detectorsSensorsCount) {
         this.sinogramMatrix = new float[steps][detectorsSensorsCount];
+        this.sumCount = new int[getInputImageSize()][getInputImageSize()];
     }
 
     private class ImageManager {
@@ -61,6 +63,7 @@ public class Sinogram {
         return ((value - min)/(max -min));
     }
 
+
     public float BresenhamAlgorithm(int emitterIndex, int sensorIndex, Tomograph tomograph, boolean sinogramCreation) throws IOException {
         float colour_value = 0.0f;
         float RGBValue = 0.0f;
@@ -91,7 +94,10 @@ public class Sinogram {
 //
 //        RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
 //        colour_value += normalize(RGBValue, 255.0f, 0.0f);
-        if(sinogramCreation) colour_value+=sinogramCreation(x,y);
+        if(sinogramCreation) {
+            colour_value+=sinogramCreation(x,y);
+            sumCount[x + getInputImageSize() / 2][y + getInputImageSize() / 2] += 1;
+        }
         else sinogramReversion(x,y,emitterIndex,sensorIndex);
 
         // OX axis
@@ -109,7 +115,10 @@ public class Sinogram {
                     d += bi;
                     x += xi;
                 }
-                if(sinogramCreation) colour_value+=sinogramCreation(x,y);
+                if(sinogramCreation) {
+                    colour_value+=sinogramCreation(x,y);
+                    sumCount[x + getInputImageSize() / 2][y + getInputImageSize() / 2] += 1;
+                }
                 else sinogramReversion(x,y,emitterIndex,sensorIndex);
             }
         }
@@ -128,7 +137,10 @@ public class Sinogram {
                     d += bi;
                     y += yi;
                 }
-                if(sinogramCreation) colour_value+=sinogramCreation(x,y);
+                if(sinogramCreation) {
+                    colour_value+=sinogramCreation(x,y);
+                    sumCount[x + getInputImageSize() / 2][y + getInputImageSize() / 2] += 1;
+                }
                 else sinogramReversion(x,y,emitterIndex,sensorIndex);
             }
         }
@@ -136,18 +148,29 @@ public class Sinogram {
     }
     public float sinogramCreation(int x, int y){
         float RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
-        return normalize(RGBValue, 255.0f, 0.0f);
+        //return normalize(RGBValue, 255.0f, 0.0f);
+        return RGBValue;
     }
 
     public void sinogramReversion(int x, int y, int emitterIndex, int sensorIndex){
         imageManager.forOutputImageMatrix[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1]
-                += sinogramMatrix[emitterIndex][sensorIndex];
+                += sinogramMatrix[emitterIndex][sensorIndex] / Math.max(1, sumCount[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1]);
     }
 
     public void SinogramToImage() {
+        // tutaj jest gotowy nieznormalizowany sinogram(proste sumy wartości pikseli):
+        normalizeSinogram();        // devide sinograms value over radius * 2
         saveArrayAsImage(sinogramMatrix, "GrayScale.jpg");
-        filterSinogram();
-        saveArrayAsImage(sinogramMatrix,"GrayScaleWithFilter.jpg");
+        //filterSinogram();
+        //saveArrayAsImage(sinogramMatrix,"GrayScaleWithFilter.jpg");
+    }
+
+    private void normalizeSinogram() {
+        for (int i = 0; i < sinogramMatrix.length; i++) {
+            for (int j=0; j < sinogramMatrix[0].length; j++) {
+                sinogramMatrix[i][j] /= (imageManager.getInputImageSize()-1);
+            }
+        }
     }
 
     public void saveOutputImage(String fileName) {
@@ -167,7 +190,8 @@ public class Sinogram {
             BufferedImage image = new BufferedImage(arrayToSave.length, arrayToSave[0].length, BufferedImage.TYPE_INT_RGB );
             for(int i = 0; i< arrayToSave.length; i++) {
                 for(int j = 0; j< arrayToSave[i].length; j++) {
-                    int a = (int)(normalize(arrayToSave[i][j], max, min) * 255);
+                    //int a = (int)(normalize(arrayToSave[i][j], max, min) * 255);
+                    int a = (int) arrayToSave[i][j];
                     Color newColor = new Color(a,a,a);
                     image.setRGB(i,j,newColor.getRGB());
                 }
@@ -210,12 +234,14 @@ public class Sinogram {
     }
 
     private float filterKernel(int emitterIndex, int detectorIndex) {
-        float filter_value = (float) (-1/Math.pow(Math.PI, 2));
-        float[] kernel = {0, filter_value, 1,  filter_value, 0};
+        float filter_value = (float) (-4/Math.pow(Math.PI, 2));
+        float[] kernel;
         float result = 0.0f;
 
         for (int i = detectorIndex - 2; i <=detectorIndex +2; i++) {
             if (i >= 0 && i < sinogramMatrix[emitterIndex].length) {
+                float new_filter_value = (float) (filter_value / Math.pow(detectorIndex - 2, 2));
+                kernel = new float[]{0, new_filter_value, 1, new_filter_value, 0};
                 result += sinogramMatrix[emitterIndex][i] * kernel[i - (detectorIndex - 2)];
             }
         }
