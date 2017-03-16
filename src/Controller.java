@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.*;
 import org.dcm4che2.media.*;
+import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che2.data.DicomObject;
 //import org.dcm4che2.imageio.ImageReaderFactory;
 public class Controller implements Initializable{
@@ -58,7 +59,7 @@ public class Controller implements Initializable{
         alphaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             alphaTextEdit.setText(validate(alphaTextEdit.getText()));
             if(alphaTextEdit.getLength() > 0)
-                alfa = Float.parseFloat(alphaTextEdit.getText());
+                alfa = Float.valueOf(alphaTextEdit.getText());
             else
                 alfa = ALPHA;
             System.out.println(alfa);
@@ -145,7 +146,7 @@ public class Controller implements Initializable{
     }
     private String validate(String text)
     {
-        if (text.matches("[0-9]*")) {
+        if (text.matches("[0-9,.]*")){
             return text;
         } else if (text.length() > 1){
             System.out.println('x');
