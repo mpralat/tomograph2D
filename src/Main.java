@@ -1,8 +1,14 @@
 import java.io.IOException;
-import java.util.ArrayList;
+import ij.plugin.DICOM;
+// DICOM:
+// http://www.apteryx.fr/
+// https://imagej.nih.gov/ij/developer/api/ij/plugin/DICOM.html
+// https://imagej.nih.gov/ij/developer/source/ij/plugin/DICOM.java.html
+// http://www.java2s.com/Code/Jar/i/Downloadijjar.htm
+// tutorial:
+// http://www.saravanansubramanian.com/Saravanan/Articles_On_Software/Entries/2014/9/29_DICOM_Basics_-_Creating_a_DICOM_File.html
 
 public class Main {
-
     public static void main(String[] args) throws IOException {
         final float alfa = 0.2f;
         final int beta = 360;
@@ -31,7 +37,7 @@ public class Main {
             }
         }
 
-        // save result
-        sinogram.saveOutputImage("output.jpg");
+        // save and filter result
+        sinogram.ResultAsImage();
     }
 }
