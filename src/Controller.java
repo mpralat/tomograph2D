@@ -8,14 +8,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
-
-
+import org.dcm4che2.data.*;
+import org.dcm4che2.io.*;
+import org.dcm4che2.media.*;
+import org.dcm4che2.data.DicomObject;
+//import org.dcm4che2.imageio.ImageReaderFactory;
 public class Controller implements Initializable{
     private static final float ALPHA = 0.2f;
     private static final int BETA = 360;
@@ -37,6 +37,9 @@ public class Controller implements Initializable{
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
+
+        DicomObject obj;
+
         Image image = new Image("file:res/test_image.png");
         mainGraphicContext = detectorsCanvas.getGraphicsContext2D();
         mainImage.setImage(image);
