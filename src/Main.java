@@ -23,6 +23,11 @@ public class Main extends Application {
     @Override
     public void stop(){
         System.out.println("Stage is closing");
+        try {
+            DicomFile dicomFile = new DicomFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         System.exit(0);
     }
 

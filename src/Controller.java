@@ -39,7 +39,7 @@ public class Controller implements Initializable{
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
 
-        DicomObject obj;
+
 
         Image image = new Image("file:res/test_image.png");
         mainGraphicContext = detectorsCanvas.getGraphicsContext2D();
