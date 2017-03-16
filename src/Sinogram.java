@@ -1,5 +1,8 @@
 
 
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.WritableImage;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -149,16 +152,19 @@ public class Sinogram {
     }
 
     public void SinogramToImage() {
-        saveArrayAsImage(sinogramMatrix, "GrayScale.jpg");
+        WritableImage sinogramImage = saveArrayAsImage(sinogramMatrix, "src/GrayScale.jpg");
+        controller.getSinogramImage().setImage(sinogramImage);
         filterSinogram();
         saveArrayAsImage(sinogramMatrix,"GrayScaleWithFilter.jpg");
     }
 
     public void saveOutputImage(String fileName) {
-        saveArrayAsImage(imageManager.forOutputImageMatrix,fileName);
+
+        WritableImage finalImage = saveArrayAsImage(imageManager.forOutputImageMatrix,fileName);
+        controller.getFinalImage().setImage(finalImage);
     }
 
-    public void saveArrayAsImage(float[][] arrayToSave, String fileName) {
+    public WritableImage saveArrayAsImage(float[][] arrayToSave, String fileName) {
         try {
             float max = 0.0f;
             float min = Float.POSITIVE_INFINITY;
@@ -178,11 +184,14 @@ public class Sinogram {
             }
             File output = new File(fileName);
             ImageIO.write(image, "jpg", output);
+            WritableImage sinImage = SwingFXUtils.toFXImage(image, null);
+            return sinImage;
         }
 
         catch(Exception e) {
             System.out.println(e.getMessage());
             System.out.println("Problem saving inputImage to graphic file");
+            return null;
         }
     }
 

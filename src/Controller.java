@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,6 +17,10 @@ import java.util.ResourceBundle;
 
 
 public class Controller implements Initializable{
+    private static final float ALPHA = 0.2f;
+    private static final int BETA = 360;
+    private static final int DETECTOR_COUNT = 900;
+
     @FXML private ImageView mainImage;
     @FXML private ImageView detectorsImage;
     @FXML private ImageView sinogramImage;
@@ -27,43 +32,49 @@ public class Controller implements Initializable{
     @FXML private TextField betaTextEdit;
     @FXML private TextField detectorsTextEdit;
     private float alfa = 0.2f;
-    private int beta = 180;
-    private int detectorCount = 500;
+    private int beta = 360;
+    private int detectorCount = 900;
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        Image image = new Image("file:res/image.PNG");
+        Image image = new Image("file:res/test_image.png");
         mainGraphicContext = detectorsCanvas.getGraphicsContext2D();
-        mainGraphicContext.setFill(Color.WHITE);
         mainImage.setImage(image);
         detectorsImage.setImage(image);
         // initialize your logic here: all @FXML variables will have been injected
         mainGraphicContext.strokeOval(0,  0, 255, 255);
-        startButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
-            @Override
-            public void handle(javafx.event.ActionEvent actionEvent) {
-                // Run the Sinogram computations
-                startSinogramTask();
-            }
+        startButton.setOnAction(actionEvent -> {
+            mainGraphicContext.setStroke(Color.GRAY);
+            mainGraphicContext.clearRect(0, 0, mainGraphicContext.getCanvas().getWidth(), mainGraphicContext.getCanvas().getHeight());
+            mainGraphicContext.strokeOval(0,  0, 255, 255);
+            System.out.println("alpha " + alfa + " beta " + beta + " detectors " + detectorCount);
+            startButton.setDisable(true);
+            // Run the Sinogram computations
+            startSinogramTask();
         });
         alphaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             alphaTextEdit.setText(validate(alphaTextEdit.getText()));
-            alfa = Float.parseFloat(alphaTextEdit.getText());
+            if(alphaTextEdit.getLength() > 0)
+                alfa = Float.parseFloat(alphaTextEdit.getText());
+            else
+                alfa = ALPHA;
             System.out.println(alfa);
         });
-        betaTextEdit.textProperty().addListener(observable -> {
+        betaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
+            if(betaTextEdit.getLength() > 0)
+                beta = Integer.parseInt(betaTextEdit.getText()) * 2;
+            else
+                beta = BETA;
             betaTextEdit.setText(validate(betaTextEdit.getText()));
-            beta = Integer.parseInt(betaTextEdit.getText());
         });
-        detectorsTextEdit.textProperty().addListener(observable -> {
+        detectorsTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
+            if (detectorsTextEdit.getLength() > 0)
+                detectorCount = Integer.parseInt(detectorsTextEdit.getText());
+            else
+                detectorCount = DETECTOR_COUNT;
             detectorsTextEdit.setText(validate(detectorsTextEdit.getText()));
-            detectorCount = Integer.parseInt(detectorsTextEdit.getText());
         });
-
-        System.out.println("sdh");
-
     }
-
 
     private void startSinogramTask() {
         Runnable task = new Runnable() {
@@ -76,7 +87,6 @@ public class Controller implements Initializable{
                 }
             }
         };
-
         Thread backgroundComputationsThread = new Thread(task);
         backgroundComputationsThread.setDaemon(true);
         backgroundComputationsThread.start();
@@ -84,12 +94,14 @@ public class Controller implements Initializable{
 
     private void runSinogram() throws IOException {
 
-
+        mainGraphicContext.setFill(Color.RED);
+        mainGraphicContext.setStroke(Color.GRAY);
         Sinogram sinogram = new Sinogram(this);
         Tomograph tomograph = new Tomograph(alfa, beta, detectorCount, sinogram.getInputImageSize()/2 - 1);
         sinogram.initializeSinogramMatrix(tomograph.getSteps(), tomograph.getDetectorsSensorsCount());
 
         for (int step = 0; step < tomograph.getSteps(); step++) {
+            //mainGraphicContext.clearRect(0, 0, mainGraphicContext.getCanvas().getWidth(), mainGraphicContext.getCanvas().getHeight());
             float row[] = new float[tomograph.getDetectorsSensorsCount()];
             int emitterPosX = tomograph.getEmitterPosX(step);
             int emitterPosY = tomograph.getEmitterPosY(step);
@@ -98,10 +110,19 @@ public class Controller implements Initializable{
 
                 int sensorPosX = tomograph.getDetectorsSensorPosX(step, sensorIndex);
                 int sensorPosY = tomograph.getDetectorsSensorPosY(step, sensorIndex);
-                mainGraphicContext.strokeOval(((sensorPosX + 255)/2.0)-3,  (255-(sensorPosY+255)/2.0)-3, 6, 6);
+
+                if (sensorIndex == 0 || sensorIndex == tomograph.getDetectorsSensorsCount()-1) {
+                    mainGraphicContext.strokeLine(((sensorPosX + 255) / 2.0), (255 - (sensorPosY + 255) / 2.0), (((emitterPosX + 255) / 2.0) - 2), (255 - (emitterPosY + 255) / 2.0) - 2);
+                }
+                if (sensorIndex == tomograph.getDetectorsSensorsCount()-1){
+                    mainGraphicContext.clearRect(0, 0, mainGraphicContext.getCanvas().getWidth(), mainGraphicContext.getCanvas().getHeight());
+                    mainGraphicContext.strokeLine(((sensorPosX + 255) / 2.0), (255 - (sensorPosY + 255) / 2.0), (((emitterPosX + 255) / 2.0) - 2), (255 - (emitterPosY + 255) / 2.0) - 2);
+                    mainGraphicContext.strokeOval(0,  0, 255, 255);
+
+                }
             }
-            mainGraphicContext.fillOval(((emitterPosX + 255)/2.0)-5,  (255-(emitterPosY+255)/2.0)-5, 10, 10);
-            System.out.println(emitterPosX + " " + emitterPosY);
+            mainGraphicContext.fillOval(((emitterPosX + 255)/2.0)-5,  (255-(emitterPosY+255)/2.0)-5, 4, 4);
+
             sinogram.insertRowToMatrix(row, step);
         }
 
@@ -114,29 +135,19 @@ public class Controller implements Initializable{
                 sinogram.BresenhamAlgorithm(emitter, detector, tomograph, false);
             }
         }
-
         // save result
         sinogram.saveOutputImage("output.jpg");
-
+        System.out.println("Finished saving the result");
+        startButton.setDisable(false);
     }
-
     private String validate(String text)
     {
         if (text.matches("[0-9]*")) {
             return text;
-        } else return text.substring(0, text.length()-1);
-    }
-
-    public ImageView getMainImage() {
-        return mainImage;
-    }
-
-    public ImageView getDetectorsImage() {
-        return detectorsImage;
-    }
-
-    public Canvas getDetectorsCanvas() {
-        return detectorsCanvas;
+        } else if (text.length() > 1){
+            System.out.println('x');
+            return text.substring(0, text.length()-1);
+        } else return "";
     }
 
     public ImageView getSinogramImage() {
