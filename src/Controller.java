@@ -41,7 +41,7 @@ public class Controller implements Initializable{
 
 
 
-        Image image = new Image("file:res/test_image.png");
+        Image image = new Image("file:src/test_image.png");
         mainGraphicContext = detectorsCanvas.getGraphicsContext2D();
         mainImage.setImage(image);
         detectorsImage.setImage(image);

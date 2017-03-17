@@ -174,7 +174,7 @@ public class Sinogram {
                     min = Math.min(min, arrayToSave[i][j]);
                 }
             }
-            BufferedImage image = new BufferedImage(arrayToSave.length, arrayToSave[0].length, BufferedImage.TYPE_INT_RGB );
+            BufferedImage image = new BufferedImage(arrayToSave.length, arrayToSave[0].length, BufferedImage.TYPE_BYTE_GRAY );
             for(int i = 0; i< arrayToSave.length; i++) {
                 for(int j = 0; j< arrayToSave[i].length; j++) {
                     int a = (int)(normalize(arrayToSave[i][j], max, min) * 255);

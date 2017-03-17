@@ -7,17 +7,22 @@ import org.dcm4che2.data.DicomObject;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferUShort;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.jar.Attributes;
 
 // tutorial:
 // http://samucs.blogspot.com/2008/12/converting-jpeg-to-dicom-using-dcm4che.html
 // dokumentacja:
 // http://www.dcm4che.org/docs/dcm4che-2.0.14-apidocs/org/dcm4che2/data/BasicDicomObject.html#putInt(int[], org.dcm4che2.data.VR, int)
+// online dicom viewer
+// https://www.google.pl/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=online+dicom+viewer&*
 
 public class DicomFile {
     public DicomFile() throws IOException {
-        String filename = "GrayScaleWithFilter";
+        String filename = "output";
         //DicomObject obj;
 
         File jpgSource = new File(filename + ".jpg");
@@ -60,9 +65,6 @@ public class DicomFile {
         dicom.putString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
         dicom.putString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
 
-        // patient info:
-        // dicom.putInt(Tag.PatientAge, VR.AS, 12);                    // Age String
-        // dicom.putInt(Tag.PatientName, VR.PN, Kasia);     // Person Name
 
         //  initiates Dicom metafile information considering JPEGBaseline1 as transfer syntax:
         dicom.initFileMetaInformation(UID.JPEGBaseline1);
