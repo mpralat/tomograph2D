@@ -140,7 +140,7 @@ public class Controller implements Initializable{
             }
         }
         // save result
-        sinogram.saveOutputImage("output.jpg");
+        sinogram.saveOutputImage("output/output.jpg");
         System.out.println("Finished saving the result");
         startButton.setDisable(false);
     }

@@ -24,7 +24,7 @@ public class Main extends Application {
     public void stop(){
         System.out.println("Stage is closing");
         try {
-            DicomFile dicomFile = new DicomFile();
+            DicomFile dicomFile = new DicomFile("output/output");
         } catch (IOException e) {
             e.printStackTrace();
         }

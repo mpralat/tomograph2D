@@ -4,7 +4,6 @@ import org.dcm4che2.media.*;
 import org.dcm4che2.util.UIDUtils;
 import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che2.data.DicomObject;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferUShort;
@@ -18,11 +17,10 @@ import java.util.jar.Attributes;
 // dokumentacja:
 // http://www.dcm4che.org/docs/dcm4che-2.0.14-apidocs/org/dcm4che2/data/BasicDicomObject.html#putInt(int[], org.dcm4che2.data.VR, int)
 // online dicom viewer
-// https://www.google.pl/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=online+dicom+viewer&*
+// http://www.ofoct.com/viewer/dicom-viewer-online.html
 
 public class DicomFile {
-    public DicomFile() throws IOException {
-        String filename = "output";
+    public DicomFile(String filename) throws IOException {
         //DicomObject obj;
 
         File jpgSource = new File(filename + ".jpg");

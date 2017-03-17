@@ -17,7 +17,7 @@ public class Sinogram {
 
     public Sinogram(Controller controller) {
         this.controller = controller;
-        this.imageManager = new ImageManager("test_image.png");
+        this.imageManager = new ImageManager("src/test_image.png");
         // TODO private sinogramMatrix
     }
 
@@ -172,15 +172,15 @@ public class Sinogram {
     }
 
     public void ResultAsImage() {
-        saveArrayAsImage(imageManager.forOutputImageMatrix,"output.jpg");
+        saveArrayAsImage(imageManager.forOutputImageMatrix,"output/output.jpg");
     }
 
     public void SinogramToImage() {
         normalizeSinogram();
-        WritableImage sinogramImage = saveArrayAsImage(sinogramMatrix, "src/GrayScale.jpg");
+        WritableImage sinogramImage = saveArrayAsImage(sinogramMatrix, "output/GrayScale.jpg");
         controller.getSinogramImage().setImage(sinogramImage);
         // filterSinogram();
-        // saveArrayAsImage(sinogramMatrix,"GrayScaleWithFilter.jpg");
+        // saveArrayAsImage(sinogramMatrix,"output/GrayScaleWithFilter.jpg");
     }
 
     public void saveOutputImage(String fileName) {
