@@ -35,7 +35,8 @@ public class Sinogram {
         private boolean[][] forOutputImageMatrixFlag;
 
         private ImageManager(String imagePath) {
-            this.inputImage = readInputImage(imagePath);
+            //this.inputImage = readInputImage(imagePath);
+            this.inputImage = controller.getBufferedImage();
             //this.outputImage = new BufferedImage(getInputImageSize(), getInputImageSize(), BufferedImage.TYPE_INT_RGB);
             this.forOutputImageMatrix = new float[getInputImageSize()][getInputImageSize()];
             this.forOutputImageMatrixFlag = new boolean[getInputImageSize()][getInputImageSize()];
@@ -188,7 +189,7 @@ public class Sinogram {
         controller.getFinalImage().setImage(finalImage);
     }
 
-    private void normalizeSinogram() {
+    public void normalizeSinogram() {
         for (int i = 0; i < sinogramMatrix.length; i++) {
             for (int j=0; j < sinogramMatrix[0].length; j++) {
                 // wartości w sinogramie dzielone przez max wartość jaką jest średnica koła
