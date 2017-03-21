@@ -39,9 +39,7 @@ public class Controller implements Initializable{
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
 
-
-
-        Image image = new Image("file:src/test_image.png");
+        Image image = new Image("file:src/horse.png");
         mainGraphicContext = detectorsCanvas.getGraphicsContext2D();
         mainImage.setImage(image);
         detectorsImage.setImage(image);
