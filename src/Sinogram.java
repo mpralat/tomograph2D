@@ -226,7 +226,7 @@ public class Sinogram {
                     min = Math.min(min, arrayToSave[i][j]);
                 }
             }
-            System.out.println("min = " + min + " max = " + max);
+            System.out.println("min = " + min + " max = " + max + " in " + fileName);
             BufferedImage image = new BufferedImage(arrayToSave.length, arrayToSave[0].length, BufferedImage.TYPE_BYTE_GRAY );
             for(int i = 0; i< arrayToSave.length; i++) {
                 for(int j = 0; j< arrayToSave[i].length; j++) {
