@@ -177,7 +177,7 @@ public class Sinogram {
     }
 
     public void SinogramToImage() {
-        normalizeSinogram();
+        //normalizeSinogram();
         WritableImage sinogramImage = saveArrayAsImage(sinogramMatrix, "output/GrayScale.jpg");
         controller.getSinogramImage().setImage(sinogramImage);
         // filterSinogram();

@@ -28,6 +28,7 @@ public class Main extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Killing all threads");
         System.exit(0);
     }
 

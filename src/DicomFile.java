@@ -62,6 +62,9 @@ public class DicomFile {
         dicom.putString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
         dicom.putString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
         dicom.putString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
+        dicom.putString(Tag.PatientName, VR.PN, "Marta Pralat");
+        dicom.putString(Tag.PatientAge, VR.AS, "23");
+        dicom.putString(Tag.PatientSex, VR.SH, "F");
 
 
         //  initiates Dicom metafile information considering JPEGBaseline1 as transfer syntax:
@@ -75,6 +78,7 @@ public class DicomFile {
 
         dos.writeHeader(Tag.PixelData, VR.OB, -1);
         dos.writeHeader(Tag.Item, null, 0);
+
 
         /*
         According to Gunter from dcm4che team we have to take care that

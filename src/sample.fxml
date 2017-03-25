@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<FlowPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<FlowPane fx:id="flowPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
    <children>
       <GridPane alignment="center" gridLinesVisible="true" hgap="10" vgap="10">
           <rowConstraints>
@@ -35,7 +35,7 @@
                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                   </GridPane.margin>
               </ImageView>
-              <Canvas fx:id="detectorsCanvas" height="255.0" width="255.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="TOP">
+              <Canvas fx:id="detectorsCanvas" height="255.0" width="255.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
                   <GridPane.margin>
                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                   </GridPane.margin>
@@ -47,16 +47,18 @@
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
       </GridPane>
-      <Pane prefHeight="200.0" prefWidth="1240.0">
+      <Pane prefHeight="182.0" prefWidth="1240.0">
          <children>
-            <Button fx:id="startButton" layoutX="14.0" layoutY="150.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="293.0" text="Button" />
+            <Button fx:id="startButton" layoutX="14.0" layoutY="143.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="170.0" text="Run automatically" />
             <TextField fx:id="alphaTextEdit" layoutX="14.0" layoutY="14.0" />
             <TextField fx:id="betaTextEdit" layoutX="14.0" layoutY="54.0" />
             <TextField fx:id="detectorsTextEdit" layoutX="14.0" layoutY="100.0" />
             <Label layoutX="206.0" layoutY="19.0" text="Alpha" />
             <Label layoutX="206.0" layoutY="59.0" text="Beta" />
             <Label layoutX="206.0" layoutY="105.0" text="Number of detectors" />
-            <Button fx:id="chooseFileButton" layoutX="341.0" layoutY="150.0" mnemonicParsing="false" text="ChooseFIle" />
+            <Button fx:id="chooseFileButton" layoutX="1056.0" layoutY="14.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="170.0" text="ChooseFIle" />
+            <Button fx:id="startManuallyButton" layoutX="195.0" layoutY="143.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="170.0" text="Run manually" />
+            <Button fx:id="nextIterButton" layoutX="373.0" layoutY="143.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="54.0" text="next" />
          </children>
       </Pane>
    </children>
