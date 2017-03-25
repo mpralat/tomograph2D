@@ -14,7 +14,6 @@ import java.util.*;
 
 import java.util.Arrays;
 
-
 public class Sinogram {
     private final ImageManager imageManager;
     public float[][] sinogramMatrix;
@@ -31,6 +30,11 @@ public class Sinogram {
         this.sinogramMatrix = new float[steps][detectorsSensorsCount];
         //this.sumCount = new int[getInputImageSize()][getInputImageSize()];
         this.sumCount = new int[steps][detectorsSensorsCount];
+    }
+
+    private class MinMax {
+        float max = 0.0f;
+        float min = Float.POSITIVE_INFINITY;
     }
 
     private class ImageManager {
@@ -78,6 +82,16 @@ public class Sinogram {
         return ((value - min)/(max -min));
     }
 
+    private MinMax findMinMaxInMatrix(float[][] matrix) {
+        MinMax minMax = new MinMax();
+        for(int i = 0; i< matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                minMax.max = Math.max(minMax.max, matrix[i][j]);
+                minMax.min = Math.min(minMax.min, matrix[i][j]);
+            }
+        }
+        return minMax;
+    }
 
     public float BresenhamAlgorithm(int emitterIndex, int sensorIndex, Tomograph tomograph, boolean sinogramCreation) throws IOException {
         float colour_value = 0.0f;
@@ -168,7 +182,7 @@ public class Sinogram {
 
     public void sinogramReversion(int x, int y, int emitterIndex, int sensorIndex){
         imageManager.forOutputImageMatrix[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1]
-                += (sinogramMatrix[emitterIndex][sensorIndex]); // / Math.max(1, sumCount[x + getInputImageSize()/2 - 1][y + getInputImageSize()/2 - 1]));
+                += (sinogramMatrix[emitterIndex][sensorIndex]);
     }
 
     public void ResultAsImage() {
@@ -181,8 +195,8 @@ public class Sinogram {
         normalizeSinogram();
         saveArrayAsImage(sinogramMatrix, "output/GrayScaleNormalized.jpg");
 
-        filterSinogram();
-        saveArrayAsImage(sinogramMatrix, "output/GrayScaleWithFilterd.jpg");
+//        filterSinogram();
+//        saveArrayAsImage(sinogramMatrix, "output/GrayScaleWithFilterd.jpg");
 
         WritableImage sinogramImage = saveArrayAsImage(sinogramMatrix,"output/GrayScaleZFinal.jpg");
         controller.getSinogramImage().setImage(sinogramImage);
@@ -191,6 +205,32 @@ public class Sinogram {
     public void saveOutputImage(String fileName) {
         WritableImage finalImage = saveArrayAsImage(imageManager.forOutputImageMatrix,fileName);
         controller.getFinalImage().setImage(finalImage);
+
+        // compute mean squared error
+        computeMeanSquaredError();
+    }
+
+
+    private void computeMeanSquaredError() {
+        float[][] meanSquareerror = new float[getInputImageSize()][getInputImageSize()];
+
+        // normalize output image matrix:
+        MinMax outputImageMinMax = findMinMaxInMatrix(imageManager.forOutputImageMatrix);
+        for(int i = 0; i< imageManager.forOutputImageMatrix.length; i++) {
+            for(int j = 0; j< imageManager.forOutputImageMatrix[i].length; j++) {
+                imageManager.forOutputImageMatrix[i][j] = (int)(normalize(imageManager.forOutputImageMatrix[i][j], outputImageMinMax.max, outputImageMinMax.min) * 255);
+            }
+        }
+
+        // compute mean squared error
+        for (int i = 0; i < getInputImageSize(); i++) {
+            for (int j = 0; j < getInputImageSize(); j++) {
+                float RGBValue = imageManager.inputImage.getRGB(i ,j)&0xFF;
+                meanSquareerror[i][j] = Math.abs(imageManager.forOutputImageMatrix[i][j] - RGBValue);
+            }
+        }
+        saveArrayAsImage(meanSquareerror, "output/meanSquareError.jpg");
+
     }
 
     private void normalizeSinogram() {
@@ -218,19 +258,12 @@ public class Sinogram {
 
     public WritableImage saveArrayAsImage(float[][] arrayToSave, String fileName) {
         try {
-            float max = 0.0f;
-            float min = Float.POSITIVE_INFINITY;
-            for(int i = 0; i< arrayToSave.length; i++) {
-                for(int j = 0; j< arrayToSave[i].length; j++) {
-                    max = Math.max(max, arrayToSave[i][j]);
-                    min = Math.min(min, arrayToSave[i][j]);
-                }
-            }
-            System.out.println("min = " + min + " max = " + max + " in " + fileName);
+            MinMax arrayMinMax = findMinMaxInMatrix(arrayToSave);
+            System.out.println("min = " + arrayMinMax.min + " max = " + arrayMinMax.max + " in " + fileName);
             BufferedImage image = new BufferedImage(arrayToSave.length, arrayToSave[0].length, BufferedImage.TYPE_BYTE_GRAY );
             for(int i = 0; i< arrayToSave.length; i++) {
                 for(int j = 0; j< arrayToSave[i].length; j++) {
-                    int a = (int)(normalize(arrayToSave[i][j], max, min) * 255);
+                    int a = (int)(normalize(arrayToSave[i][j], arrayMinMax.max, arrayMinMax.min) * 255);
                     //int a = (int) arrayToSave[i][j];
                     Color newColor = new Color(a,a,a);
                     image.setRGB(i,j,newColor.getRGB());

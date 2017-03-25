@@ -64,6 +64,7 @@ public class ComputationManager {
         controller.getStartButton().setDisable(false);
         controller.getStartManuallyButton().setDisable(false);
     }
+
     public boolean oneSinogramIteration(int step) throws IOException {
         // Computes and draws one step of the sinogram computations.
         if(step == tomograph.getSteps()) {
