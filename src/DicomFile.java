@@ -1,3 +1,4 @@
+import javafx.fxml.FXMLLoader;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.*;
 import org.dcm4che2.media.*;
@@ -69,7 +70,6 @@ public class DicomFile {
         dicom.putString(Tag.PatientSex, VR.SH, "F");
         dicom.putString(Tag.ImageComments, VR.ST, "Komentarze na temat pacjenta. Moga byc tutaj dlugie nawet");
         dicom.putString(Tag.Date, VR.DT, "20162030");
-
 
         //  initiates Dicom metafile information considering JPEGBaseline1 as transfer syntax:
         dicom.initFileMetaInformation(UID.JPEGBaseline1);

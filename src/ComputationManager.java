@@ -4,6 +4,9 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import static java.lang.Thread.sleep;
 
 /**
  * Created by marta on 18.03.17.
@@ -15,9 +18,12 @@ public class ComputationManager {
     private final Controller controller;
     private final Sinogram sinogram;
     private final Tomograph tomograph;
+    private volatile boolean shutdownTask = false;
 
     public ComputationManager(Controller controller) {
         this.controller = controller;
+        System.out.println("ALFABETA");
+        System.out.println(controller.getAlfa()+ " " + controller.getBeta());
         this.mainGraphicContext = controller.getMainGraphicContext();
         this.sinogram = new Sinogram(controller);
         this.tomograph = new Tomograph(controller.getAlfa(), controller.getBeta(), controller.getDetectorCount(), sinogram.getInputImageSize()/2 - 1);
@@ -26,11 +32,11 @@ public class ComputationManager {
         mainGraphicContext.setStroke(Color.GRAY);
     }
 
-    public void startSinogramTask() {
+    public void startSinogramTask(int stepCount) {
         // Starts a new thread for the sinogram task. Only in automatic mode.
         Runnable task = () -> {
             try {
-                runSinogram();
+                runSinogram(stepCount);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -40,16 +46,21 @@ public class ComputationManager {
         backgroundComputationsThread.start();
     }
 
-    private void runSinogram() throws IOException {
-        // Computing the whole sinogram and saving the result. Automatic mode.
-        for (int step = 0; step < tomograph.getSteps(); step++) {
-            oneSinogramIteration(step);
-        }
-        saveSinogram();
+    private void runSinogram(int stepCount) throws IOException {
+            for (int step = stepCount; step <= tomograph.getSteps(); step++) {
+                if(!shutdownTask) {
+                    oneSinogramIteration(step);
+                }
+                else {
+                    controller.getSinogramImage().setImage(null);
+                    controller.getMainGraphicContext().clearRect(0, 0, 255, 255);
+                    break;
+                }
+            }
     }
 
     private void saveSinogram() throws IOException {
-        // save and filter singoram
+        // save and filter singogram
         sinogram.SinogramToImage();
         System.out.println("main.Sinogram saved as image");
 
@@ -63,12 +74,11 @@ public class ComputationManager {
         System.out.println("Finished saving the result");
         controller.getStartButton().setDisable(false);
         controller.getStartManuallyButton().setDisable(false);
+        controller.clear();
     }
 
     public boolean oneSinogramIteration(int step) throws IOException {
-        // Computes and draws one step of the sinogram computations.
         if(step == tomograph.getSteps()) {
-            // For manual mode - lets the controller know that the computations are over.
             System.out.println("Finished iterating. Saving the sinogram image now.");
             saveSinogram();
             return false;
@@ -78,7 +88,9 @@ public class ComputationManager {
         int dotPosX = (int) (Math.ceil(Math.cos((controller.getAlfa() * Math.PI)/180 * step) * 255));
         int dotPosY = (int) (Math.ceil(Math.sin((controller.getAlfa() * Math.PI)/180 * step) * 255));
         for (int sensorIndex = 0; sensorIndex < tomograph.getDetectorsSensorsCount(); sensorIndex++) {
+
             row[sensorIndex] = sinogram.BresenhamAlgorithm(step, sensorIndex, tomograph, true);
+
             int sensorPosX = tomograph.getDetectorsSensorPosX(step, sensorIndex);
             int sensorPosY = tomograph.getDetectorsSensorPosY(step, sensorIndex);
             if (sensorIndex == 0 || sensorIndex == tomograph.getDetectorsSensorsCount()-1) {
@@ -120,4 +132,7 @@ public class ComputationManager {
     }
 
 
+    public void setShutdownTask(boolean shutdownTask) {
+        this.shutdownTask = shutdownTask;
+    }
 }

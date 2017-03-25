@@ -19,20 +19,20 @@ import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 
 public class Controller implements Initializable {
-    private static final float ALPHA = 0.2f;
+    private static final float ALPHA = 13f;
     private static final int BETA = 360;
-    private static final int DETECTOR_COUNT = 900;
+    private static final int DETECTOR_COUNT = 500;
     private int currentStep = 0;
 
     @FXML private GraphicsContext mainGraphicContext;
     @FXML private Canvas detectorsCanvas;
-    @FXML private ImageView mainImage;
     @FXML private ImageView detectorsImage;
     @FXML private ImageView sinogramImage;
     @FXML private ImageView finalImage;
     @FXML private Button startButton;
     @FXML private Button chooseFileButton;
     @FXML private Button nextIterButton;
+    @FXML private Button stopButton;
     @FXML private Button startManuallyButton;
     @FXML private TextField alphaTextEdit;
     @FXML private TextField betaTextEdit;
@@ -41,9 +41,9 @@ public class Controller implements Initializable {
     private Image imageToProcess;
     private BufferedImage bufferedImage;
     private ComputationManager computationManager;
-    private float alfa = 0.2f;
-    private int beta = 360;
-    private int detectorCount = 900;
+    private float alfa = ALPHA;
+    private int beta = BETA;
+    private int detectorCount = DETECTOR_COUNT;
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -55,10 +55,10 @@ public class Controller implements Initializable {
 
         Image image = new Image("file:src/test_image.png");
         mainGraphicContext = detectorsCanvas.getGraphicsContext2D();
-        mainImage.setImage(image);
         detectorsImage.setImage(image);
         // initialize your logic here: all @FXML variables will have been injected
         mainGraphicContext.strokeOval(0, 0, 255, 255);
+        computationManager = new ComputationManager(this);
         textEditSetup();
         buttonsSetup();
     }
@@ -66,26 +66,32 @@ public class Controller implements Initializable {
 
     //************ GUI SETUP
     private void textEditSetup() {
+        alphaTextEdit.setText(String.valueOf(alfa));
+        betaTextEdit.setText(String.valueOf(beta/2));
+        detectorsTextEdit.setText(String.valueOf(detectorCount));
+
         alphaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             alphaTextEdit.setText(validate(alphaTextEdit.getText()));
-            if (alphaTextEdit.getLength() > 0)
+            if (alphaTextEdit.getLength() > 0) {
                 alfa = Float.valueOf(alphaTextEdit.getText());
-            else
-                alfa = ALPHA;
+                System.out.println("ALPPHAAA " + alfa);
+            }
+//            else
+//                alfa = ALPHA;
             System.out.println(alfa);
         });
         betaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             if (betaTextEdit.getLength() > 0)
                 beta = Integer.parseInt(betaTextEdit.getText()) * 2;
-            else
-                beta = BETA;
+//            else
+//                beta = BETA;
             betaTextEdit.setText(validate(betaTextEdit.getText()));
         });
         detectorsTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             if (detectorsTextEdit.getLength() > 0)
                 detectorCount = Integer.parseInt(detectorsTextEdit.getText());
-            else
-                detectorCount = DETECTOR_COUNT;
+//            else
+//                detectorCount = DETECTOR_COUNT;
             detectorsTextEdit.setText(validate(detectorsTextEdit.getText()));
         });
     }
@@ -101,27 +107,36 @@ public class Controller implements Initializable {
         } else return "";
     }
 
+    public void disableTextEdits(boolean option) {
+        alphaTextEdit.setDisable(option);
+        betaTextEdit.setEditable(option);
+        detectorsTextEdit.setEditable(option);
+    }
+
+    private void setTextEdits(){
+        alphaTextEdit.setText(String.valueOf(alfa));
+        System.out.println("ALPHA2" + alfa);
+        betaTextEdit.setText(String.valueOf(beta/2));
+        detectorsTextEdit.setText(String.valueOf(detectorCount));
+    }
+
     private void buttonsSetup() {
         nextIterButton.setDisable(true);
         startButton.setOnAction(actionEvent -> {
-            alphaTextEdit.setText(String.valueOf(alfa));
-            betaTextEdit.setText(String.valueOf(beta/2));
-            detectorsTextEdit.setText(String.valueOf(detectorCount));
-
+            clear();
+            setTextEdits();
+            disableTextEdits(true);
             prepareForDrawing();
-            startButton.setDisable(true);
-            nextIterButton.setDisable(true);
-            startManuallyButton.setDisable(true);
             // Run the Sinogram computations
-            computationManager = new ComputationManager(this);
-            computationManager.startSinogramTask();
+            //computationManager = new ComputationManager(this);
+            computationManager.startSinogramTask(getCurrentStep());
         });
         startManuallyButton.setOnAction(actionEvent -> {
+            clear();
             prepareForDrawing();
-            startButton.setDisable(true);
+            disableTextEdits(true);
             nextIterButton.setDisable(false);
             setCurrentStep(0);
-            computationManager = new ComputationManager(this);
         });
         nextIterButton.setOnAction(actionEvent -> {
             for (int i = 0; i < 20; i++) {
@@ -146,13 +161,18 @@ public class Controller implements Initializable {
                 try {
                     setBufferedImage(ImageIO.read(file));
                     imageToProcess = SwingFXUtils.toFXImage(bufferedImage, null);
-                    mainImage.setImage(imageToProcess);
                     detectorsImage.setImage(imageToProcess);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
             }
+        });
+        stopButton.setOnAction((ActionEvent actionEvent) -> {
+            computationManager.setShutdownTask(true);
+            startButton.setDisable(false);
+            startManuallyButton.setDisable(false);
+            clear();
         });
     }
 
@@ -166,10 +186,17 @@ public class Controller implements Initializable {
         );
     }
 
+    public void clear(){
+        System.out.println("clear");
+        computationManager = new ComputationManager(this);
+        currentStep = 0;
+        disableTextEdits(false);
+    }
+
     private void prepareForDrawing() {
         // Preparing the graphic context: setting up the colours and clearing the canvas.
         mainGraphicContext.setStroke(Color.GRAY);
-        mainGraphicContext.clearRect(0, 0, mainGraphicContext.getCanvas().getWidth(), mainGraphicContext.getCanvas().getHeight());
+        mainGraphicContext.clearRect(0, 0, 255, 255);
         mainGraphicContext.strokeOval(0, 0, 255, 255);
         System.out.println("alpha " + alfa + " beta " + beta + " detectors " + detectorCount);
     }

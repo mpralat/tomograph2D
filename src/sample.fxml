@@ -26,23 +26,19 @@
               <ColumnConstraints minWidth="100.0" prefWidth="300.0" />
           </columnConstraints>
           <children>
-              <ImageView fx:id="mainImage" fitHeight="255.0" fitWidth="255.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.valignment="TOP">
+              <ImageView fx:id="detectorsImage" fitHeight="255.0" fitWidth="255.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.valignment="TOP">
                   <GridPane.margin>
                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                   </GridPane.margin>
               </ImageView>
-              <ImageView fx:id="detectorsImage" fitHeight="255.0" fitWidth="255.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="TOP">
-                  <GridPane.margin>
-                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                  </GridPane.margin>
-              </ImageView>
-              <Canvas fx:id="detectorsCanvas" height="255.0" width="255.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
+              <Canvas fx:id="detectorsCanvas" height="255.0" width="255.0" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
                   <GridPane.margin>
                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                   </GridPane.margin>
               </Canvas>
-            <ImageView fx:id="finalImage" fitHeight="255.0" fitWidth="255.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-            <ImageView fx:id="sinogramImage" fitHeight="255.0" fitWidth="255.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <ImageView fx:id="finalImage" fitHeight="255.0" fitWidth="255.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <ImageView fx:id="sinogramImage" fitHeight="255.0" fitWidth="255.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <ImageView fx:id="squareErrorImage" fitHeight="255.0" fitWidth="255.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
           </children>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -66,6 +62,7 @@
             <Label layoutX="418.0" layoutY="51.0" prefHeight="16.0" prefWidth="106.0" text="Patient's age" />
             <Label layoutX="740.0" layoutY="19.0" prefHeight="16.0" prefWidth="75.0" text="Comments" />
             <TextArea layoutX="822.0" layoutY="14.0" prefHeight="94.0" prefWidth="404.0" />
+            <Button fx:id="stopButton" layoutX="300.0" layoutY="113.0" mnemonicParsing="false" text="Stop" />
          </children>
       </Pane>
    </children>
