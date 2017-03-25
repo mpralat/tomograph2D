@@ -188,7 +188,9 @@ public class Sinogram {
         saveArrayAsImage(sinogramMatrix, "output/GrayScaleNormalized.jpg");
 
         filterSinogram();
-        WritableImage sinogramImage = saveArrayAsImage(sinogramMatrix,"output/GrayScaleWithFilter.jpg");
+        saveArrayAsImage(sinogramMatrix, "output/GrayScaleWithFilterd.jpg");
+
+        WritableImage sinogramImage = saveArrayAsImage(sinogramMatrix,"output/GrayScaleZFinal.jpg");
         controller.getSinogramImage().setImage(sinogramImage);
     }
 
@@ -202,16 +204,16 @@ public class Sinogram {
         float min = Float.POSITIVE_INFINITY;
         for (int i = 0; i < sinogramMatrix.length; i++) {
             for (int j=0; j < sinogramMatrix[0].length; j++) {
-                // wartości w sinogramie dzielone przez max wartość jaką jest średnica koła
-                //msinogramMatrix[i][j] /= (imageManager.getInputImageSize()-1);
-                // wartości w sinoramie dzielone przez ilość dodawań
-                sinogramMatrix[i][j] /= Math.max(1, sumCount[i][j]);
+                // sinogram values divided by InputImageSize:
+                sinogramMatrix[i][j] /= (imageManager.getInputImageSize()-1);
+                // sinogram values divided by SumCount:
+                // sinogramMatrix[i][j] /= Math.max(1, sumCount[i][j]);
                 max = Math.max(max, sinogramMatrix[i][j]);
                 min = Math.min(min, sinogramMatrix[i][j]);
             }
         }
 
-        System.out.println("min = " + min + " max = " + max + " normalizing sinogram" );
+        System.out.println("min = " + min + " max = " + max + " when normalizing sinogram" );
         for(int i = 0; i< sinogramMatrix.length; i++) {
             for(int j = 0; j< sinogramMatrix[i].length; j++) {
                 sinogramMatrix[i][j] = (int)(normalize(sinogramMatrix[i][j], max, min) * 255);
@@ -254,43 +256,84 @@ public class Sinogram {
     }
 
     public void filterSinogram() {
+        System.out.println("Sensors: " + sinogramMatrix.length + " detectors: " + sinogramMatrix[0].length);
         float[][] newSinogramMatrix = new float[sinogramMatrix.length][sinogramMatrix[0].length];
         for (int i = 0; i < sinogramMatrix.length; i++) {
             for (int j = 0; j < sinogramMatrix[0].length; j++) {
-                newSinogramMatrix[i][j] = filterKernel(i,j, 3);
+                //newSinogramMatrix[i][j] = filterKernelSum(i,j, 3);            // sum
+                //newSinogramMatrix[i][j] = filterKernelMedian(i,j, 3);        // median
+                newSinogramMatrix[i][j] = filterKernel(i ,j ,sinogramMatrix[0].length);        // median
             }
         }
         sinogramMatrix = newSinogramMatrix;
+
     }
 
     private float filterKernel(int realEmitterIndex, int realDetectorIndex, int kernel_width) {
+        //System.out.println("Emitter = " + realEmitterIndex + " Detector = " + realDetectorIndex);
+        float filter_multiplier = (float) (-4/Math.pow(Math.PI, 2));
+        float[] kernel = new float[kernel_width];
+        float result = 0.0f;
+
+        for (int i = realDetectorIndex - kernel_width/2; i < realDetectorIndex + kernel_width/2; i++) { // real indexes
+            //System.out.println("Prawdziwy Index i = " + i);
+            if (i >= 0 && i < sinogramMatrix[0].length) {        // jeśli mieści się w rzędzie
+                //int i_index = i - (sinogramMatrix[0].length / 2);
+                int i_index = i - realDetectorIndex;
+                //System.out.println("Sztuczny Index i_index = " + i_index);
+                float filter_value;
+                if (i_index == 0) filter_value = 1;
+                else if (i_index % 2 == 0) filter_value = 0;
+                else filter_value = (float) (filter_multiplier / Math.pow(i_index, 2));
+                result += sinogramMatrix[realEmitterIndex][i] * filter_value;
+            }
+        }
+        return result;
+    }
+
+    private float filterKernelSum(int realEmitterIndex, int realDetectorIndex, int kernel_width) {
         Float[] value_list = new Float[kernel_width*kernel_width];
-        float[] kernel = {0, -0.3f, 0, -0.3f, 9, -0.3f, 0, -0.3f, 0};
+        float[] kernel = {0, -1f, 0, -1f, 6, -1f, 0, -1f, 0};
         int index = 0;
         for (int i = realEmitterIndex - kernel_width/2; i <= realEmitterIndex + kernel_width/2; i++) {
             for (int j = realDetectorIndex - kernel_width/2; j <= realDetectorIndex + kernel_width/2; j++) {
                 if (i < 0 || j < 0) value_list[index++] = 0.0f;
                 else if (i >= sinogramMatrix.length || j >= sinogramMatrix[0].length) value_list[index++] = 0.0f;
                 else {
-                    //value_list[index] = sinogramMatrix[i][j];                 // for median
                     value_list[index] = sinogramMatrix[i][j] * kernel[index];   // for sum
                     index++;
                 }
             }
         }
-        // median
-//        Arrays.sort(value_list);
-//        float median;
-//        if (value_list.length % 2 == 0)
-//            median = (value_list[value_list.length/2] + value_list[value_list.length/2 - 1])/2.0f;
-//        else
-//            median = value_list[value_list.length/2];
-        // sum
         float sum = 0.0f;
         for (float i : value_list) sum += i;
         Math.max(sum, 0.0f);
         Math.min(sum, 255);
 
         return sum;
+    }
+
+    private float filterKernelMedian(int realEmitterIndex, int realDetectorIndex, int kernel_width) {
+        Float[] value_list = new Float[kernel_width*kernel_width];
+        float[] kernel = {0, -1f, 0, -1f, 6, -1f, 0, -1f, 0};
+        int index = 0;
+        for (int i = realEmitterIndex - kernel_width/2; i <= realEmitterIndex + kernel_width/2; i++) {
+            for (int j = realDetectorIndex - kernel_width/2; j <= realDetectorIndex + kernel_width/2; j++) {
+                if (i < 0 || j < 0) value_list[index++] = 0.0f;
+                else if (i >= sinogramMatrix.length || j >= sinogramMatrix[0].length) value_list[index++] = 0.0f;
+                else {
+                    value_list[index] = sinogramMatrix[i][j];                 // for median
+                    index++;
+                }
+            }
+        }
+        // median
+        Arrays.sort(value_list);
+        float median;
+        if (value_list.length % 2 == 0)
+            median = (value_list[value_list.length/2] + value_list[value_list.length/2 - 1])/2.0f;
+        else
+            median = value_list[value_list.length/2];
+        return median;
     }
 }
