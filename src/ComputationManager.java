@@ -22,6 +22,8 @@ public class ComputationManager {
 
     public ComputationManager(Controller controller) {
         this.controller = controller;
+        System.out.println("ALFABETA");
+        System.out.println(controller.getAlfa()+ " " + controller.getBeta());
         this.mainGraphicContext = controller.getMainGraphicContext();
         this.sinogram = new Sinogram(controller);
         this.tomograph = new Tomograph(controller.getAlfa(), controller.getBeta(), controller.getDetectorCount(), sinogram.getInputImageSize()/2 - 1);
