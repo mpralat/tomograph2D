@@ -175,7 +175,7 @@ public class Controller implements Initializable {
             }
         });
         stopButton.setOnAction((ActionEvent actionEvent) -> {
-            computationManager.setShutdownTask(true);
+            computationManager.setShutdownTask();
             startButton.setDisable(false);
             startManuallyButton.setDisable(false);
             clear();

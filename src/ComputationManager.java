@@ -4,7 +4,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.sleep;
 
@@ -19,9 +18,6 @@ public class ComputationManager {
     private final Sinogram sinogram;
     private final Tomograph tomograph;
     private volatile boolean shutdownTask = false;
-    private float alfa;
-    private int beta;
-    private int detectors;
 
     public ComputationManager(Controller controller) {
         this.controller = controller;
@@ -89,18 +85,18 @@ public class ComputationManager {
         int dotPosY = (int) (Math.ceil(Math.sin((controller.getAlfa() * Math.PI)/180 * step) * 255));
         for (int sensorIndex = 0; sensorIndex < tomograph.getDetectorsSensorsCount(); sensorIndex++) {
             row[sensorIndex] = sinogram.BresenhamAlgorithm(step, sensorIndex, tomograph, true);
-
-            int sensorPosX = tomograph.getDetectorsSensorPosX(step, sensorIndex);
-            int sensorPosY = tomograph.getDetectorsSensorPosY(step, sensorIndex);
+//            Drawing the detectors and emitters
             if(sensorIndex == 0){
                 mainGraphicContext.clearRect(0, 0, 255, 255);
                 mainGraphicContext.strokeOval(0,  0, 255, 255);
                 mainGraphicContext.fillOval(((dotPosX + 255)/2.0)-5,  (255-(dotPosY+255)/2.0)-5, 4, 4);
-                mainGraphicContext.strokeLine(((tomograph.getDetectorsSensorPosX(step, 0) + 255) / 2.0), (255 - (tomograph.getDetectorsSensorPosY(step,0) + 255) / 2.0), (((dotPosX + 255) / 2.0) - 2), (255 - (dotPosY + 255) / 2.0) - 2);
-                mainGraphicContext.strokeLine(((tomograph.getDetectorsSensorPosX(step,  tomograph.getDetectorsSensorsCount()-1) + 255) / 2.0), (255 - (tomograph.getDetectorsSensorPosY(step, tomograph.getDetectorsSensorsCount()-1) + 255) / 2.0), (((dotPosX + 255) / 2.0) - 2), (255 - (dotPosY + 255) / 2.0) - 2);
+                mainGraphicContext.strokeLine(((tomograph.getDetectorsSensorPosX(step, 0) + 255) / 2.0),
+                        (255 - (tomograph.getDetectorsSensorPosY(step,0) + 255) / 2.0), (((dotPosX + 255) / 2.0) - 2), (255 - (dotPosY + 255) / 2.0) - 2);
+                mainGraphicContext.strokeLine(((tomograph.getDetectorsSensorPosX(step,  tomograph.getDetectorsSensorsCount()-1) + 255) / 2.0),
+                        (255 - (tomograph.getDetectorsSensorPosY(step, tomograph.getDetectorsSensorsCount()-1) + 255) / 2.0), (((dotPosX + 255) / 2.0) - 2),
+                        (255 - (dotPosY + 255) / 2.0) - 2);
             }
         }
-
 
 //      Drawing the sinogram step by step
         sinogram.insertRowToMatrix(row, step);
@@ -114,7 +110,6 @@ public class ComputationManager {
                     min = Math.min(min, sinogram.sinogramMatrix[i][j]);
                 }
             }
-            //System.out.println("min = " + min + " max = " + max);
             BufferedImage image = new BufferedImage(sinogram.sinogramMatrix.length, sinogram.sinogramMatrix[0].length, BufferedImage.TYPE_BYTE_GRAY );
             for(int i = 0; i< sinogram.sinogramMatrix.length; i++) {
                 for(int j = 0; j< sinogram.sinogramMatrix[i].length; j++) {
@@ -129,8 +124,7 @@ public class ComputationManager {
         return true;
     }
 
-
-    public void setShutdownTask(boolean shutdownTask) {
-        this.shutdownTask = shutdownTask;
+    public void setShutdownTask() {
+        this.shutdownTask = true;
     }
 }
