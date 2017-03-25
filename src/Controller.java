@@ -48,7 +48,7 @@ public class Controller implements Initializable {
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         try {
-            setBufferedImage(ImageIO.read(new File("res/test_image.png")));
+            setBufferedImage(ImageIO.read(new File("src/test_image.png")));
         } catch (IOException e) {
             System.out.println("Error reading file!");
         }
@@ -160,7 +160,6 @@ public class Controller implements Initializable {
             computationManager.setShutdownTask(true);
             startButton.setDisable(false);
             startManuallyButton.setDisable(false);
-            mainGraphicContext.clearRect(0, 0, 255, 255);
             clear();
         });
     }
