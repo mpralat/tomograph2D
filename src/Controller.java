@@ -29,6 +29,7 @@ public class Controller implements Initializable {
     @FXML private ImageView detectorsImage;
     @FXML private ImageView sinogramImage;
     @FXML private ImageView finalImage;
+    @FXML private ImageView squareErrorImage;
     @FXML private Button startButton;
     @FXML private Button chooseFileButton;
     @FXML private Button nextIterButton;
@@ -206,6 +207,11 @@ public class Controller implements Initializable {
     public ImageView getFinalImage() {
         return finalImage;
     }
+
+    public ImageView getSquareErrorImage() {
+        return squareErrorImage;
+    }
+
     public BufferedImage getBufferedImage() { return bufferedImage;}
     public void setBufferedImage(BufferedImage bufferedImage) {
         this.bufferedImage = bufferedImage;

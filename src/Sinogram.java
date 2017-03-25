@@ -195,8 +195,8 @@ public class Sinogram {
         normalizeSinogram();
         saveArrayAsImage(sinogramMatrix, "output/GrayScaleNormalized.jpg");
 
-//        filterSinogram();
-//        saveArrayAsImage(sinogramMatrix, "output/GrayScaleWithFilterd.jpg");
+        filterSinogram();
+        saveArrayAsImage(sinogramMatrix, "output/GrayScaleWithFilterd.jpg");
 
         WritableImage sinogramImage = saveArrayAsImage(sinogramMatrix,"output/GrayScaleZFinal.jpg");
         controller.getSinogramImage().setImage(sinogramImage);
@@ -212,7 +212,7 @@ public class Sinogram {
 
 
     private void computeMeanSquaredError() {
-        float[][] meanSquareerror = new float[getInputImageSize()][getInputImageSize()];
+        float[][] meanSquareError = new float[getInputImageSize()][getInputImageSize()];
 
         // normalize output image matrix:
         MinMax outputImageMinMax = findMinMaxInMatrix(imageManager.forOutputImageMatrix);
@@ -226,10 +226,11 @@ public class Sinogram {
         for (int i = 0; i < getInputImageSize(); i++) {
             for (int j = 0; j < getInputImageSize(); j++) {
                 float RGBValue = imageManager.inputImage.getRGB(i ,j)&0xFF;
-                meanSquareerror[i][j] = Math.abs(imageManager.forOutputImageMatrix[i][j] - RGBValue);
+                meanSquareError[i][j] = Math.abs(imageManager.forOutputImageMatrix[i][j] - RGBValue);
             }
         }
-        saveArrayAsImage(meanSquareerror, "output/meanSquareError.jpg");
+        WritableImage meanSquaredErrorImage = saveArrayAsImage(meanSquareError, "output/meanSquareError.jpg");
+        controller.getSquareErrorImage().setImage(meanSquaredErrorImage);
 
     }
 
