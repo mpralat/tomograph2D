@@ -19,9 +19,9 @@ import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 
 public class Controller implements Initializable {
-    private static final float ALPHA = 13f;
+    private static final float ALPHA = 0.5f;
     private static final int BETA = 360;
-    private static final int DETECTOR_COUNT = 500;
+    private static final int DETECTOR_COUNT = 800;
     private int currentStep = 0;
 
     @FXML private GraphicsContext mainGraphicContext;
@@ -77,22 +77,22 @@ public class Controller implements Initializable {
                 alfa = Float.valueOf(alphaTextEdit.getText());
                 System.out.println("ALPPHAAA " + alfa);
             }
-//            else
-//                alfa = ALPHA;
+            else
+                alfa = ALPHA;
             System.out.println(alfa);
         });
         betaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             if (betaTextEdit.getLength() > 0)
                 beta = Integer.parseInt(betaTextEdit.getText()) * 2;
-//            else
-//                beta = BETA;
+            else
+                beta = BETA;
             betaTextEdit.setText(validate(betaTextEdit.getText()));
         });
         detectorsTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             if (detectorsTextEdit.getLength() > 0)
                 detectorCount = Integer.parseInt(detectorsTextEdit.getText());
-//            else
-//                detectorCount = DETECTOR_COUNT;
+            else
+                detectorCount = DETECTOR_COUNT;
             detectorsTextEdit.setText(validate(detectorsTextEdit.getText()));
         });
     }
@@ -124,6 +124,8 @@ public class Controller implements Initializable {
     private void buttonsSetup() {
         nextIterButton.setDisable(true);
         startButton.setOnAction(actionEvent -> {
+            getFinalImage().setImage(null);
+            getSquareErrorImage().setImage(null);
             clear();
             setTextEdits();
             disableTextEdits(true);
@@ -174,6 +176,8 @@ public class Controller implements Initializable {
             startButton.setDisable(false);
             startManuallyButton.setDisable(false);
             clear();
+            getSinogramImage().setImage(null);
+            getMainGraphicContext().clearRect(0, 0, 255, 255);
         });
     }
 
