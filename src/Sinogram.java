@@ -23,7 +23,7 @@ public class Sinogram {
 
     public Sinogram(Controller controller) {
         this.controller = controller;
-        this.imageManager = new ImageManager("src/horse.png");
+        this.imageManager = new ImageManager("src/test_image.png");
         // TODO private sinogramMatrix
     }
 
@@ -106,12 +106,8 @@ public class Sinogram {
             yi = -1;
             dy = emitterPosY - sensorPosY;
         }
-//
-//        RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
-//        colour_value += normalize(RGBValue, 255.0f, 0.0f);
         if(sinogramCreation) {
             colour_value+=sinogramCreation(x,y);
-            //sumCount[x + getInputImageSize() / 2][y + getInputImageSize() / 2] += 1;
             sumCount[emitterIndex][sensorIndex] += 1;
             imageManager.forOutputImageMatrixFlag[x + getInputImageSize() / 2][y + getInputImageSize() / 2] = true;
         }
@@ -134,7 +130,6 @@ public class Sinogram {
                 }
                 if(sinogramCreation) {
                     colour_value+=sinogramCreation(x,y);
-                    //sumCount[x + getInputImageSize() / 2][y + getInputImageSize() / 2] += 1;
                     sumCount[emitterIndex][sensorIndex] += 1;
                     imageManager.forOutputImageMatrixFlag[x + getInputImageSize() / 2][y + getInputImageSize() / 2] = true;
                 }
@@ -158,7 +153,6 @@ public class Sinogram {
                 }
                 if(sinogramCreation) {
                     colour_value+=sinogramCreation(x,y);
-                    //sumCount[x + getInputImageSize() / 2][y + getInputImageSize() / 2] += 1;
                     sumCount[emitterIndex][sensorIndex] += 1;
                     imageManager.forOutputImageMatrixFlag[x + getInputImageSize() / 2][y + getInputImageSize() / 2] = true;
                 }
@@ -169,7 +163,6 @@ public class Sinogram {
     }
     public float sinogramCreation(int x, int y){
         float RGBValue = imageManager.inputImage.getRGB(x + imageManager.getInputImageSize()/2 ,y + imageManager.getInputImageSize()/2 )&0xFF;
-        //return normalize(RGBValue, 255.0f, 0.0f);
         return RGBValue;
     }
 
@@ -261,8 +254,6 @@ public class Sinogram {
         float[][] newSinogramMatrix = new float[sinogramMatrix.length][sinogramMatrix[0].length];
         for (int i = 0; i < sinogramMatrix.length; i++) {
             for (int j = 0; j < sinogramMatrix[0].length; j++) {
-                //newSinogramMatrix[i][j] = filterKernelSum(i,j, 3);            // sum
-                //newSinogramMatrix[i][j] = filterKernelMedian(i,j, 3);        // median
                 newSinogramMatrix[i][j] = filterKernel(i ,j ,sinogramMatrix[0].length);        // median
             }
         }
@@ -290,51 +281,5 @@ public class Sinogram {
             }
         }
         return result;
-    }
-
-    private float filterKernelSum(int realEmitterIndex, int realDetectorIndex, int kernel_width) {
-        Float[] value_list = new Float[kernel_width*kernel_width];
-        float[] kernel = {0, -1f, 0, -1f, 6, -1f, 0, -1f, 0};
-        int index = 0;
-        for (int i = realEmitterIndex - kernel_width/2; i <= realEmitterIndex + kernel_width/2; i++) {
-            for (int j = realDetectorIndex - kernel_width/2; j <= realDetectorIndex + kernel_width/2; j++) {
-                if (i < 0 || j < 0) value_list[index++] = 0.0f;
-                else if (i >= sinogramMatrix.length || j >= sinogramMatrix[0].length) value_list[index++] = 0.0f;
-                else {
-                    value_list[index] = sinogramMatrix[i][j] * kernel[index];   // for sum
-                    index++;
-                }
-            }
-        }
-        float sum = 0.0f;
-        for (float i : value_list) sum += i;
-        Math.max(sum, 0.0f);
-        Math.min(sum, 255);
-
-        return sum;
-    }
-
-    private float filterKernelMedian(int realEmitterIndex, int realDetectorIndex, int kernel_width) {
-        Float[] value_list = new Float[kernel_width*kernel_width];
-        float[] kernel = {0, -1f, 0, -1f, 6, -1f, 0, -1f, 0};
-        int index = 0;
-        for (int i = realEmitterIndex - kernel_width/2; i <= realEmitterIndex + kernel_width/2; i++) {
-            for (int j = realDetectorIndex - kernel_width/2; j <= realDetectorIndex + kernel_width/2; j++) {
-                if (i < 0 || j < 0) value_list[index++] = 0.0f;
-                else if (i >= sinogramMatrix.length || j >= sinogramMatrix[0].length) value_list[index++] = 0.0f;
-                else {
-                    value_list[index] = sinogramMatrix[i][j];                 // for median
-                    index++;
-                }
-            }
-        }
-        // median
-        Arrays.sort(value_list);
-        float median;
-        if (value_list.length % 2 == 0)
-            median = (value_list[value_list.length/2] + value_list[value_list.length/2 - 1])/2.0f;
-        else
-            median = value_list[value_list.length/2];
-        return median;
     }
 }
