@@ -45,6 +45,7 @@ public class Controller implements Initializable {
     private float alfa = ALPHA;
     private int beta = BETA;
     private int detectorCount = DETECTOR_COUNT;
+    private boolean started = false;
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -126,7 +127,8 @@ public class Controller implements Initializable {
         startButton.setOnAction(actionEvent -> {
             getFinalImage().setImage(null);
             getSquareErrorImage().setImage(null);
-            clear();
+            if(!started) clear();
+            started = true;
             setTextEdits();
             disableTextEdits(true);
             prepareForDrawing();
@@ -135,7 +137,8 @@ public class Controller implements Initializable {
             computationManager.startSinogramTask(getCurrentStep());
         });
         startManuallyButton.setOnAction(actionEvent -> {
-            clear();
+            if (!started) clear();
+            started = true;
             prepareForDrawing();
             disableTextEdits(true);
             nextIterButton.setDisable(false);
@@ -196,6 +199,7 @@ public class Controller implements Initializable {
         computationManager = new ComputationManager(this);
         currentStep = 0;
         disableTextEdits(false);
+        setStarted(false);
     }
 
     private void prepareForDrawing() {
@@ -236,4 +240,8 @@ public class Controller implements Initializable {
     public int getCurrentStep() { return currentStep;}
     public void setCurrentStep(int currentStep) { this.currentStep = currentStep; }
     public Button getStartManuallyButton() { return startManuallyButton; }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
 }
