@@ -109,8 +109,8 @@ public class Controller implements Initializable {
 
     public void disableTextEdits(boolean option) {
         alphaTextEdit.setDisable(option);
-        betaTextEdit.setEditable(option);
-        detectorsTextEdit.setEditable(option);
+        betaTextEdit.setDisable(option);
+        detectorsTextEdit.setDisable(option);
     }
 
     private void setTextEdits(){
