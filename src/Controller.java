@@ -105,13 +105,23 @@ public class Controller implements Initializable {
         } else return "";
     }
 
+    private void disableTextEdits(boolean option) {
+        alphaTextEdit.setEditable(false);
+        betaTextEdit.setEditable(!option);
+        detectorsTextEdit.setEditable(!option);
+    }
+
+    private void setTextEdits(){
+        alphaTextEdit.setText(String.valueOf(alfa));
+        betaTextEdit.setText(String.valueOf(beta/2));
+        detectorsTextEdit.setText(String.valueOf(detectorCount));
+    }
+
     private void buttonsSetup() {
         nextIterButton.setDisable(true);
         startButton.setOnAction(actionEvent -> {
-            alphaTextEdit.setText(String.valueOf(alfa));
-            betaTextEdit.setText(String.valueOf(beta/2));
-            detectorsTextEdit.setText(String.valueOf(detectorCount));
-
+            setTextEdits();
+            disableTextEdits(false);
             prepareForDrawing();
             startButton.setDisable(true);
             nextIterButton.setDisable(true);
