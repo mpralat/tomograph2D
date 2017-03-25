@@ -30,13 +30,11 @@ public class ComputationManager {
         mainGraphicContext.setStroke(Color.GRAY);
     }
 
-
     public void startSinogramTask(int stepCount) {
         // Starts a new thread for the sinogram task. Only in automatic mode.
         Runnable task = () -> {
             try {
-                    runSinogram(stepCount);
-                
+                runSinogram(stepCount);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -54,7 +52,6 @@ public class ComputationManager {
                 else {
                     controller.getSinogramImage().setImage(null);
                     controller.getMainGraphicContext().clearRect(0, 0, 255, 255);
-
                     break;
                 }
             }
