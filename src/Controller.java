@@ -37,6 +37,9 @@ public class Controller implements Initializable {
     @FXML private TextField alphaTextEdit;
     @FXML private TextField betaTextEdit;
     @FXML private TextField detectorsTextEdit;
+    @FXML private TextField commentTextEdit;
+    @FXML private TextField nameTextEdit;
+    @FXML private TextField ageTextEdit;
 
     private Image imageToProcess;
     private BufferedImage bufferedImage;
@@ -44,6 +47,9 @@ public class Controller implements Initializable {
     private float alfa = 0.2f;
     private int beta = 360;
     private int detectorCount = 900;
+    private int age;
+    private String name;
+    private String comments;
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -66,8 +72,12 @@ public class Controller implements Initializable {
 
     //************ GUI SETUP
     private void textEditSetup() {
+        alphaTextEdit.setText(String.valueOf(alfa));
+        betaTextEdit.setText(String.valueOf(beta/2));
+        detectorsTextEdit.setText(String.valueOf(detectorCount));
+
         alphaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
-            alphaTextEdit.setText(validate(alphaTextEdit.getText()));
+            alphaTextEdit.setText(validateNumber(alphaTextEdit.getText()));
             if (alphaTextEdit.getLength() > 0)
                 alfa = Float.valueOf(alphaTextEdit.getText());
             else
@@ -79,18 +89,25 @@ public class Controller implements Initializable {
                 beta = Integer.parseInt(betaTextEdit.getText()) * 2;
             else
                 beta = BETA;
-            betaTextEdit.setText(validate(betaTextEdit.getText()));
+            betaTextEdit.setText(validateNumber(betaTextEdit.getText()));
         });
         detectorsTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             if (detectorsTextEdit.getLength() > 0)
                 detectorCount = Integer.parseInt(detectorsTextEdit.getText());
             else
                 detectorCount = DETECTOR_COUNT;
-            detectorsTextEdit.setText(validate(detectorsTextEdit.getText()));
+            detectorsTextEdit.setText(validateNumber(detectorsTextEdit.getText()));
+        });
+        ageTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
+            if (ageTextEdit.getLength() > 0)
+                age = Integer.parseInt(ageTextEdit.getText());
+            else
+                age = 0;
+            detectorsTextEdit.setText(validateNumber(detectorsTextEdit.getText()));
         });
     }
 
-    private String validate(String text) {
+    private String validateNumber(String text) {
         // Checking the correctness for the alpha, beta and detectors count text edits.
         // Validates the string. If the recently typed letter is neither a dot nor a number, it is erased.
         if (text.matches("[0-9,.]*")) {
