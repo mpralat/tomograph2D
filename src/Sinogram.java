@@ -41,7 +41,8 @@ public class Sinogram {
         private boolean[][] forOutputImageMatrixFlag;
 
         private ImageManager(String imagePath) {
-            this.inputImage = readInputImage(imagePath);
+            //this.inputImage = readInputImage(imagePath);
+            this.inputImage = controller.getBufferedImage();
             //this.outputImage = new BufferedImage(getInputImageSize(), getInputImageSize(), BufferedImage.TYPE_INT_RGB);
             this.forOutputImageMatrix = new float[getInputImageSize()][getInputImageSize()];
             this.forOutputImageMatrixFlag = new boolean[getInputImageSize()][getInputImageSize()];
@@ -232,7 +233,7 @@ public class Sinogram {
                     min = Math.min(min, arrayToSave[i][j]);
                 }
             }
-            System.out.println("min = " + min + " max = " + max + " in " + fileName);
+            System.out.println("min = " + min + " max = " + max);
             BufferedImage image = new BufferedImage(arrayToSave.length, arrayToSave[0].length, BufferedImage.TYPE_BYTE_GRAY );
             for(int i = 0; i< arrayToSave.length; i++) {
                 for(int j = 0; j< arrayToSave[i].length; j++) {

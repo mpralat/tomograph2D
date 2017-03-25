@@ -1,4 +1,5 @@
-import javafx.event.EventHandler;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -8,62 +9,73 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import org.dcm4che2.data.*;
-import org.dcm4che2.io.*;
-import org.dcm4che2.media.*;
-import org.dcm4che3.imageio.codec.CompressionRules;
-import org.dcm4che2.data.DicomObject;
-//import org.dcm4che2.imageio.ImageReaderFactory;
-public class Controller implements Initializable{
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javax.imageio.ImageIO;
+
+public class Controller implements Initializable {
     private static final float ALPHA = 0.2f;
     private static final int BETA = 360;
     private static final int DETECTOR_COUNT = 900;
+    private int currentStep = 0;
 
+    @FXML private GraphicsContext mainGraphicContext;
+    @FXML private Canvas detectorsCanvas;
     @FXML private ImageView mainImage;
     @FXML private ImageView detectorsImage;
     @FXML private ImageView sinogramImage;
     @FXML private ImageView finalImage;
-    @FXML private Canvas detectorsCanvas;
-    @FXML private GraphicsContext mainGraphicContext;
     @FXML private Button startButton;
+    @FXML private Button chooseFileButton;
+    @FXML private Button nextIterButton;
+    @FXML private Button startManuallyButton;
     @FXML private TextField alphaTextEdit;
     @FXML private TextField betaTextEdit;
     @FXML private TextField detectorsTextEdit;
+
+    private Image imageToProcess;
+    private BufferedImage bufferedImage;
+    private ComputationManager computationManager;
     private float alfa = 0.2f;
     private int beta = 360;
     private int detectorCount = 900;
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
+        try {
+            setBufferedImage(ImageIO.read(new File("res/test_image.png")));
+        } catch (IOException e) {
+            System.out.println("Error reading file!");
+        }
 
-        Image image = new Image("file:src/horse.png");
+        Image image = new Image("file:src/test_image.png");
         mainGraphicContext = detectorsCanvas.getGraphicsContext2D();
         mainImage.setImage(image);
         detectorsImage.setImage(image);
         // initialize your logic here: all @FXML variables will have been injected
-        mainGraphicContext.strokeOval(0,  0, 255, 255);
-        startButton.setOnAction(actionEvent -> {
-            mainGraphicContext.setStroke(Color.GRAY);
-            mainGraphicContext.clearRect(0, 0, mainGraphicContext.getCanvas().getWidth(), mainGraphicContext.getCanvas().getHeight());
-            mainGraphicContext.strokeOval(0,  0, 255, 255);
-            System.out.println("alpha " + alfa + " beta " + beta + " detectors " + detectorCount);
-            startButton.setDisable(true);
-            // Run the Sinogram computations
-            startSinogramTask();
-        });
+        mainGraphicContext.strokeOval(0, 0, 255, 255);
+        textEditSetup();
+        buttonsSetup();
+    }
+
+
+    //************ GUI SETUP
+    private void textEditSetup() {
         alphaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
             alphaTextEdit.setText(validate(alphaTextEdit.getText()));
-            if(alphaTextEdit.getLength() > 0)
+            if (alphaTextEdit.getLength() > 0)
                 alfa = Float.valueOf(alphaTextEdit.getText());
             else
                 alfa = ALPHA;
             System.out.println(alfa);
         });
         betaTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
-            if(betaTextEdit.getLength() > 0)
+            if (betaTextEdit.getLength() > 0)
                 beta = Integer.parseInt(betaTextEdit.getText()) * 2;
             else
                 beta = BETA;
@@ -78,85 +90,113 @@ public class Controller implements Initializable{
         });
     }
 
-    private void startSinogramTask() {
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    runSinogram();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        Thread backgroundComputationsThread = new Thread(task);
-        backgroundComputationsThread.setDaemon(true);
-        backgroundComputationsThread.start();
-    }
-
-    private void runSinogram() throws IOException {
-
-        mainGraphicContext.setFill(Color.RED);
-        mainGraphicContext.setStroke(Color.GRAY);
-        Sinogram sinogram = new Sinogram(this);
-        Tomograph tomograph = new Tomograph(alfa, beta, detectorCount, sinogram.getInputImageSize()/2 - 1);
-        sinogram.initializeSinogramMatrix(tomograph.getSteps(), tomograph.getDetectorsSensorsCount());
-
-        for (int step = 0; step < tomograph.getSteps(); step++) {
-            //mainGraphicContext.clearRect(0, 0, mainGraphicContext.getCanvas().getWidth(), mainGraphicContext.getCanvas().getHeight());
-            float row[] = new float[tomograph.getDetectorsSensorsCount()];
-            int emitterPosX = tomograph.getEmitterPosX(step);
-            int emitterPosY = tomograph.getEmitterPosY(step);
-            for (int sensorIndex = 0; sensorIndex < tomograph.getDetectorsSensorsCount(); sensorIndex++) {
-                row[sensorIndex] = sinogram.BresenhamAlgorithm(step, sensorIndex, tomograph, true);
-
-                int sensorPosX = tomograph.getDetectorsSensorPosX(step, sensorIndex);
-                int sensorPosY = tomograph.getDetectorsSensorPosY(step, sensorIndex);
-
-                if (sensorIndex == 0 || sensorIndex == tomograph.getDetectorsSensorsCount()-1) {
-                    mainGraphicContext.strokeLine(((sensorPosX + 255) / 2.0), (255 - (sensorPosY + 255) / 2.0), (((emitterPosX + 255) / 2.0) - 2), (255 - (emitterPosY + 255) / 2.0) - 2);
-                }
-                if (sensorIndex == tomograph.getDetectorsSensorsCount()-1){
-                    mainGraphicContext.clearRect(0, 0, mainGraphicContext.getCanvas().getWidth(), mainGraphicContext.getCanvas().getHeight());
-                    mainGraphicContext.strokeLine(((sensorPosX + 255) / 2.0), (255 - (sensorPosY + 255) / 2.0), (((emitterPosX + 255) / 2.0) - 2), (255 - (emitterPosY + 255) / 2.0) - 2);
-                    mainGraphicContext.strokeOval(0,  0, 255, 255);
-
-                }
-            }
-            mainGraphicContext.fillOval(((emitterPosX + 255)/2.0)-5,  (255-(emitterPosY+255)/2.0)-5, 4, 4);
-
-            sinogram.insertRowToMatrix(row, step);
-        }
-
-        // save and filter singoram
-        sinogram.SinogramToImage();
-        System.out.println("main.Sinogram saved as image");
-
-        for (int emitter = 0; emitter < sinogram.sinogramMatrix.length; emitter++) {
-            for (int detector = 0; detector < sinogram.sinogramMatrix[0].length; detector++) {
-                sinogram.BresenhamAlgorithm(emitter, detector, tomograph, false);
-            }
-        }
-        // save result
-        sinogram.saveOutputImage("output/output.jpg");
-        System.out.println("Finished saving the result");
-        startButton.setDisable(false);
-    }
-    private String validate(String text)
-    {
-        if (text.matches("[0-9,.]*")){
+    private String validate(String text) {
+        // Checking the correctness for the alpha, beta and detectors count text edits.
+        // Validates the string. If the recently typed letter is neither a dot nor a number, it is erased.
+        if (text.matches("[0-9,.]*")) {
             return text;
-        } else if (text.length() > 1){
+        } else if (text.length() > 1) {
             System.out.println('x');
-            return text.substring(0, text.length()-1);
+            return text.substring(0, text.length() - 1);
         } else return "";
     }
 
-    public ImageView getSinogramImage() {
-        return sinogramImage;
+    private void buttonsSetup() {
+        nextIterButton.setDisable(true);
+        startButton.setOnAction(actionEvent -> {
+            alphaTextEdit.setText(String.valueOf(alfa));
+            betaTextEdit.setText(String.valueOf(beta/2));
+            detectorsTextEdit.setText(String.valueOf(detectorCount));
+
+            prepareForDrawing();
+            startButton.setDisable(true);
+            nextIterButton.setDisable(true);
+            startManuallyButton.setDisable(true);
+            // Run the Sinogram computations
+            computationManager = new ComputationManager(this);
+            computationManager.startSinogramTask();
+        });
+        startManuallyButton.setOnAction(actionEvent -> {
+            prepareForDrawing();
+            startButton.setDisable(true);
+            nextIterButton.setDisable(false);
+            setCurrentStep(0);
+            computationManager = new ComputationManager(this);
+        });
+        nextIterButton.setOnAction(actionEvent -> {
+            for (int i = 0; i < 20; i++) {
+                try {
+                    if (!computationManager.oneSinogramIteration(getCurrentStep())) {
+                        nextIterButton.setDisable(true);
+                        startButton.setDisable(false);
+                        startManuallyButton.setDisable(false);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                setCurrentStep(getCurrentStep() + 1);
+            }
+        });
+        chooseFileButton.setOnAction((ActionEvent actionEvent) -> {
+            FileChooser fileChooser = new FileChooser();
+            configureFileChooser(fileChooser);
+            File file = fileChooser.showOpenDialog((Stage) startButton.getScene().getWindow());
+            if (file != null) {
+                try {
+                    setBufferedImage(ImageIO.read(file));
+                    imageToProcess = SwingFXUtils.toFXImage(bufferedImage, null);
+                    mainImage.setImage(imageToProcess);
+                    detectorsImage.setImage(imageToProcess);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
     }
 
+    private static void configureFileChooser(final FileChooser fileChooser) {
+        fileChooser.setTitle("View Pictures");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All Images", "*.*"),
+                new FileChooser.ExtensionFilter("JPG", "*.jpg"),
+                new FileChooser.ExtensionFilter("PNG", "*.png")
+        );
+    }
+
+    private void prepareForDrawing() {
+        // Preparing the graphic context: setting up the colours and clearing the canvas.
+        mainGraphicContext.setStroke(Color.GRAY);
+        mainGraphicContext.clearRect(0, 0, mainGraphicContext.getCanvas().getWidth(), mainGraphicContext.getCanvas().getHeight());
+        mainGraphicContext.strokeOval(0, 0, 255, 255);
+        System.out.println("alpha " + alfa + " beta " + beta + " detectors " + detectorCount);
+    }
+
+    //    GETTERS
+    ImageView getSinogramImage() { return sinogramImage; }
     public ImageView getFinalImage() {
         return finalImage;
     }
+    public BufferedImage getBufferedImage() { return bufferedImage;}
+    public void setBufferedImage(BufferedImage bufferedImage) {
+        this.bufferedImage = bufferedImage;
+    }
+    public GraphicsContext getMainGraphicContext() {
+        return mainGraphicContext;
+    }
+    public Button getStartButton() {
+        return startButton;
+    }
+    public float getAlfa() {
+        return alfa;
+    }
+    public int getBeta() {
+        return beta;
+    }
+    public int getDetectorCount() { return detectorCount; }
+    public int getCurrentStep() { return currentStep;}
+    public void setCurrentStep(int currentStep) { this.currentStep = currentStep; }
+    public Button getStartManuallyButton() { return startManuallyButton; }
 }
