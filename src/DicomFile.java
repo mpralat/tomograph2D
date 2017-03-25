@@ -18,6 +18,8 @@ import java.util.jar.Attributes;
 // http://www.dcm4che.org/docs/dcm4che-2.0.14-apidocs/org/dcm4che2/data/BasicDicomObject.html#putInt(int[], org.dcm4che2.data.VR, int)
 // online dicom viewer
 // http://www.ofoct.com/viewer/dicom-viewer-online.html
+// dicom tags and codes
+// ftp://dicom.nema.org/medical/DICOM/2013/output/chtml/part05/sect_6.2.html
 
 public class DicomFile {
     public DicomFile(String filename) throws IOException {
@@ -65,6 +67,8 @@ public class DicomFile {
         dicom.putString(Tag.PatientName, VR.PN, "Marta Pralat");
         dicom.putString(Tag.PatientAge, VR.AS, "23");
         dicom.putString(Tag.PatientSex, VR.SH, "F");
+        dicom.putString(Tag.ImageComments, VR.ST, "Komentarze na temat pacjenta. Moga byc tutaj dlugie nawet");
+        dicom.putString(Tag.Date, VR.DT, "20162030");
 
 
         //  initiates Dicom metafile information considering JPEGBaseline1 as transfer syntax:
