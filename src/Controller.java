@@ -5,6 +5,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -38,6 +40,10 @@ public class Controller implements Initializable {
     @FXML private TextField alphaTextEdit;
     @FXML private TextField betaTextEdit;
     @FXML private TextField detectorsTextEdit;
+    @FXML private TextField nameTextEdit;
+    @FXML private TextField ageTextEdit;
+    @FXML private TextArea commentsTextEdit;
+    @FXML private ChoiceBox sexChoiceBox;
 
     private Image imageToProcess;
     private BufferedImage bufferedImage;
@@ -54,17 +60,16 @@ public class Controller implements Initializable {
         } catch (IOException e) {
             System.out.println("Error reading file!");
         }
-
         Image image = new Image("file:src/test_image.png");
         mainGraphicContext = detectorsCanvas.getGraphicsContext2D();
         detectorsImage.setImage(image);
         // initialize your logic here: all @FXML variables will have been injected
         mainGraphicContext.strokeOval(0, 0, 255, 255);
         computationManager = new ComputationManager(this);
+        sexChoiceBox.getSelectionModel().selectFirst();
         textEditSetup();
         buttonsSetup();
     }
-
 
     //************ GUI SETUP
     private void textEditSetup() {
@@ -96,6 +101,9 @@ public class Controller implements Initializable {
                 detectorCount = DETECTOR_COUNT;
             detectorsTextEdit.setText(validate(detectorsTextEdit.getText()));
         });
+        ageTextEdit.textProperty().addListener(((observableValue, s, t1) -> {
+            ageTextEdit.setText(validate(ageTextEdit.getText()));
+        }));
     }
 
     private String validate(String text) {
@@ -104,7 +112,6 @@ public class Controller implements Initializable {
         if (text.matches("[0-9,.]*")) {
             return text;
         } else if (text.length() > 1) {
-            System.out.println('x');
             return text.substring(0, text.length() - 1);
         } else return "";
     }
@@ -133,7 +140,6 @@ public class Controller implements Initializable {
             disableTextEdits(true);
             prepareForDrawing();
             // Run the Sinogram computations
-            //computationManager = new ComputationManager(this);
             computationManager.startSinogramTask(getCurrentStep());
         });
         startManuallyButton.setOnAction(actionEvent -> {
@@ -194,12 +200,20 @@ public class Controller implements Initializable {
         );
     }
 
-    public void clear(){
+    void clear(){
         System.out.println("clear");
         computationManager = new ComputationManager(this);
         currentStep = 0;
         disableTextEdits(false);
         setStarted(false);
+    }
+
+    void saveDicom(){
+        try {
+            DicomFile dicomFile = new DicomFile("output/output", this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void prepareForDrawing() {
@@ -212,36 +226,39 @@ public class Controller implements Initializable {
 
     //    GETTERS
     ImageView getSinogramImage() { return sinogramImage; }
-    public ImageView getFinalImage() {
+    ImageView getFinalImage() {
         return finalImage;
     }
-
-    public ImageView getSquareErrorImage() {
+    ImageView getSquareErrorImage() {
         return squareErrorImage;
     }
-
-    public BufferedImage getBufferedImage() { return bufferedImage;}
-    public void setBufferedImage(BufferedImage bufferedImage) {
-        this.bufferedImage = bufferedImage;
-    }
-    public GraphicsContext getMainGraphicContext() {
+    BufferedImage getBufferedImage() { return bufferedImage;}
+    GraphicsContext getMainGraphicContext() {
         return mainGraphicContext;
     }
-    public Button getStartButton() {
+    Button getStartButton() {
         return startButton;
     }
-    public float getAlfa() {
+    Button getStartManuallyButton() { return startManuallyButton; }
+    TextField getNameTextEdit() {return nameTextEdit;}
+    TextField getAgeTextEdit() {return ageTextEdit;}
+    TextArea getCommentsTextEdit() {return commentsTextEdit;}
+    public ChoiceBox getSexChoiceBox() {return sexChoiceBox;}
+
+    // SETTERS
+    float getAlfa() {
         return alfa;
     }
-    public int getBeta() {
+    int getBeta() {
         return beta;
     }
-    public int getDetectorCount() { return detectorCount; }
-    public int getCurrentStep() { return currentStep;}
-    public void setCurrentStep(int currentStep) { this.currentStep = currentStep; }
-    public Button getStartManuallyButton() { return startManuallyButton; }
-
-    public void setStarted(boolean started) {
+    int getDetectorCount() { return detectorCount; }
+    private int getCurrentStep() { return currentStep;}
+    private void setCurrentStep(int currentStep) { this.currentStep = currentStep; }
+    private void setStarted(boolean started) {
         this.started = started;
+    }
+    private void setBufferedImage(BufferedImage bufferedImage) {
+        this.bufferedImage = bufferedImage;
     }
 }

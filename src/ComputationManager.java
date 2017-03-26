@@ -72,6 +72,7 @@ public class ComputationManager {
         controller.getStartButton().setDisable(false);
         controller.getStartManuallyButton().setDisable(false);
         controller.clear();
+        controller.saveDicom();
     }
 
     public boolean oneSinogramIteration(int step) throws IOException {
@@ -89,12 +90,12 @@ public class ComputationManager {
             if(sensorIndex == 0){
                 mainGraphicContext.clearRect(0, 0, 255, 255);
                 mainGraphicContext.strokeOval(0,  0, 255, 255);
-                mainGraphicContext.fillOval(((dotPosX + 255)/2.0)-5,  (255-(dotPosY+255)/2.0)-5, 4, 4);
                 mainGraphicContext.strokeLine(((tomograph.getDetectorsSensorPosX(step, 0) + 255) / 2.0),
                         (255 - (tomograph.getDetectorsSensorPosY(step,0) + 255) / 2.0), (((dotPosX + 255) / 2.0) - 2), (255 - (dotPosY + 255) / 2.0) - 2);
                 mainGraphicContext.strokeLine(((tomograph.getDetectorsSensorPosX(step,  tomograph.getDetectorsSensorsCount()-1) + 255) / 2.0),
                         (255 - (tomograph.getDetectorsSensorPosY(step, tomograph.getDetectorsSensorsCount()-1) + 255) / 2.0), (((dotPosX + 255) / 2.0) - 2),
                         (255 - (dotPosY + 255) / 2.0) - 2);
+                mainGraphicContext.fillOval(((dotPosX + 255)/2.0)-5,  (255-(dotPosY+255)/2.0)-5, 4, 4);
             }
         }
 

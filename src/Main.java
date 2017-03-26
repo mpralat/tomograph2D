@@ -22,11 +22,6 @@ public class Main extends Application {
     @Override
     public void stop(){
         System.out.println("Stage is closing");
-        try {
-            DicomFile dicomFile = new DicomFile("output/output");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         System.out.println("Killing all threads");
         System.exit(0);
     }

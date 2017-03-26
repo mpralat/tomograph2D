@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferUShort;
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.jar.Attributes;
 
@@ -23,8 +25,10 @@ import java.util.jar.Attributes;
 // ftp://dicom.nema.org/medical/DICOM/2013/output/chtml/part05/sect_6.2.html
 
 public class DicomFile {
-    public DicomFile(String filename) throws IOException {
+    private Controller controller;
+    public DicomFile(String filename, Controller controller) throws IOException {
         //DicomObject obj;
+
 
         File jpgSource = new File(filename + ".jpg");
         File dcmDestination = new File(filename + ".dcm");
@@ -65,11 +69,15 @@ public class DicomFile {
         dicom.putString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
         dicom.putString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
         dicom.putString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
-        dicom.putString(Tag.PatientName, VR.PN, "Marta Pralat");
-        dicom.putString(Tag.PatientAge, VR.AS, "23");
-        dicom.putString(Tag.PatientSex, VR.SH, "F");
-        dicom.putString(Tag.ImageComments, VR.ST, "Komentarze na temat pacjenta. Moga byc tutaj dlugie nawet");
-        dicom.putString(Tag.Date, VR.DT, "20162030");
+
+        // patient's info
+        dicom.putString(Tag.PatientName, VR.PN, controller.getNameTextEdit().getText());
+        dicom.putString(Tag.PatientAge, VR.AS, controller.getAgeTextEdit().getText());
+        dicom.putString(Tag.PatientSex, VR.SH, controller.getSexChoiceBox().getSelectionModel().getSelectedItem().toString());
+        dicom.putString(Tag.ImageComments, VR.ST, controller.getCommentsTextEdit().getText());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        dicom.putString(Tag.Date, VR.DT, dateFormat.format(date));
 
         //  initiates Dicom metafile information considering JPEGBaseline1 as transfer syntax:
         dicom.initFileMetaInformation(UID.JPEGBaseline1);
