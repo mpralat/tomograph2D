@@ -93,6 +93,9 @@ public class Controller implements Initializable {
                 beta = Integer.parseInt(betaTextEdit.getText()) * 2;
             else
                 beta = BETA;
+            if (beta > 361){
+                beta = BETA;
+            }
             betaTextEdit.setText(validate(betaTextEdit.getText()));
         });
         detectorsTextEdit.textProperty().addListener((observable, newValue, oldValue) -> {
@@ -100,7 +103,10 @@ public class Controller implements Initializable {
                 detectorCount = Integer.parseInt(detectorsTextEdit.getText());
             else
                 detectorCount = DETECTOR_COUNT;
+            if(detectorCount == 1)
+                detectorCount=DETECTOR_COUNT;
             detectorsTextEdit.setText(validate(detectorsTextEdit.getText()));
+
         });
         ageTextEdit.textProperty().addListener(((observableValue, s, t1) -> ageTextEdit.setText(validate(ageTextEdit.getText()))));
     }

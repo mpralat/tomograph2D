@@ -23,12 +23,10 @@ public class Sinogram {
     public Sinogram(Controller controller) {
         this.controller = controller;
         this.imageManager = new ImageManager("src/test_image.png");
-        // TODO private sinogramMatrix
     }
 
     public void initializeSinogramMatrix(int steps, int detectorsSensorsCount) {
         this.sinogramMatrix = new float[steps][detectorsSensorsCount];
-        //this.sumCount = new int[getInputImageSize()][getInputImageSize()];
         this.sumCount = new int[steps][detectorsSensorsCount];
     }
 
@@ -39,8 +37,6 @@ public class Sinogram {
 
     private class ImageManager {
         private final BufferedImage inputImage;
-        // TODO wywalić imageOutput, wywalić macierz?
-        //private BufferedImage outputImage;
         private float[][] forOutputImageMatrix;
         private boolean[][] forOutputImageMatrixFlag;
 
@@ -86,8 +82,8 @@ public class Sinogram {
         MinMax minMax = new MinMax();
         for(int i = 0; i< matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
-                minMax.max = Math.max(minMax.max, matrix[i][j]);
-                minMax.min = Math.min(minMax.min, matrix[i][j]);
+                    minMax.max = Math.max(minMax.max, matrix[i][j]);
+                    minMax.min = Math.min(minMax.min, matrix[i][j]);
             }
         }
         return minMax;
@@ -221,16 +217,23 @@ public class Sinogram {
                 imageManager.forOutputImageMatrix[i][j] = (int)(normalize(imageManager.forOutputImageMatrix[i][j], outputImageMinMax.max, outputImageMinMax.min) * 255);
             }
         }
-
+        float sum = 0;
+        int counter = 0;
         // compute mean squared error
-        for (int i = 0; i < getInputImageSize(); i++) {
-            for (int j = 0; j < getInputImageSize(); j++) {
+        for (int i = 0; i < getInputImageSize()-1; i++) {
+            for (int j = 0; j < getInputImageSize()-1; j++) {
                 float RGBValue = imageManager.inputImage.getRGB(i ,j)&0xFF;
-                meanSquareError[i][j] = Math.abs(imageManager.forOutputImageMatrix[i][j] - RGBValue);
+                //System.out.println(RGBValue + " " + imageManager.forOutputImageMatrix[i][j]);
+
+                    meanSquareError[i][j] = Math.abs(imageManager.forOutputImageMatrix[i][j] - RGBValue);
+                    sum += Math.pow((meanSquareError[i][j]), 2);
+                    counter++;
+
             }
         }
         WritableImage meanSquaredErrorImage = saveArrayAsImage(meanSquareError, "output/meanSquareError.jpg");
         controller.getSquareErrorImage().setImage(meanSquaredErrorImage);
+        System.out.println(sum/counter);
 
     }
 
