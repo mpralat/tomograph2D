@@ -82,7 +82,6 @@ public class Controller implements Initializable {
             alphaTextEdit.setText(validate(alphaTextEdit.getText()));
             if (alphaTextEdit.getLength() > 0) {
                 alfa = Float.valueOf(alphaTextEdit.getText());
-                System.out.println("ALPPHAAA " + alfa);
             }
             else
                 alfa = ALPHA;
@@ -135,7 +134,6 @@ public class Controller implements Initializable {
 
     private void setTextEdits(){
         alphaTextEdit.setText(String.valueOf(alfa));
-        System.out.println("ALPHA2" + alfa);
         betaTextEdit.setText(String.valueOf(beta/2));
         detectorsTextEdit.setText(String.valueOf(detectorCount));
     }
