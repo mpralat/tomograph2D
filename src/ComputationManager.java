@@ -1,3 +1,4 @@
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.WritableImage;
@@ -12,14 +13,14 @@ import static java.lang.Thread.sleep;
  * Class that runs the sinogram computations.
  */
 
-public class ComputationManager {
+class ComputationManager {
     private final GraphicsContext mainGraphicContext;
     private final Controller controller;
     private final Sinogram sinogram;
     private final Tomograph tomograph;
     private volatile boolean shutdownTask = false;
 
-    public ComputationManager(Controller controller) {
+    ComputationManager(Controller controller) {
         this.controller = controller;
         this.mainGraphicContext = controller.getMainGraphicContext();
         this.sinogram = new Sinogram(controller);
@@ -29,7 +30,7 @@ public class ComputationManager {
         mainGraphicContext.setStroke(Color.GRAY);
     }
 
-    public void startSinogramTask(int stepCount) {
+    void startSinogramTask(int stepCount) {
         // Starts a new thread for the sinogram task. Only in automatic mode.
         Runnable task = () -> {
             try {
@@ -75,7 +76,7 @@ public class ComputationManager {
         controller.saveDicom();
     }
 
-    public boolean oneSinogramIteration(int step) throws IOException {
+    boolean oneSinogramIteration(int step) throws IOException {
         if(step == tomograph.getSteps()) {
             System.out.println("Finished iterating. Saving the sinogram image now.");
             saveSinogram();
@@ -125,7 +126,7 @@ public class ComputationManager {
         return true;
     }
 
-    public void setShutdownTask() {
+    void setShutdownTask() {
         this.shutdownTask = true;
     }
 }

@@ -11,13 +11,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.scene.control.Label;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 
 public class Controller implements Initializable {
@@ -44,6 +44,7 @@ public class Controller implements Initializable {
     @FXML private TextField ageTextEdit;
     @FXML private TextArea commentsTextEdit;
     @FXML private ChoiceBox sexChoiceBox;
+    @FXML private Label infoLabel;
 
     private Image imageToProcess;
     private BufferedImage bufferedImage;
@@ -101,9 +102,7 @@ public class Controller implements Initializable {
                 detectorCount = DETECTOR_COUNT;
             detectorsTextEdit.setText(validate(detectorsTextEdit.getText()));
         });
-        ageTextEdit.textProperty().addListener(((observableValue, s, t1) -> {
-            ageTextEdit.setText(validate(ageTextEdit.getText()));
-        }));
+        ageTextEdit.textProperty().addListener(((observableValue, s, t1) -> ageTextEdit.setText(validate(ageTextEdit.getText()))));
     }
 
     private String validate(String text) {
@@ -116,10 +115,16 @@ public class Controller implements Initializable {
         } else return "";
     }
 
-    public void disableTextEdits(boolean option) {
+    private void disableTextEdits(boolean option) {
         alphaTextEdit.setDisable(option);
         betaTextEdit.setDisable(option);
         detectorsTextEdit.setDisable(option);
+    }
+
+    private void disableButtons(boolean option){
+        startButton.setDisable(option);
+        startManuallyButton.setDisable(option);
+        nextIterButton.setDisable(option);
     }
 
     private void setTextEdits(){
@@ -138,9 +143,11 @@ public class Controller implements Initializable {
             started = true;
             setTextEdits();
             disableTextEdits(true);
+            disableButtons(true);
             prepareForDrawing();
             // Run the Sinogram computations
             computationManager.startSinogramTask(getCurrentStep());
+            infoLabel.setText("Processing...");
         });
         startManuallyButton.setOnAction(actionEvent -> {
             if (!started) clear();
@@ -165,10 +172,19 @@ public class Controller implements Initializable {
                 setCurrentStep(getCurrentStep() + 1);
             }
         });
+        stopButton.setOnAction((ActionEvent actionEvent) -> {
+            computationManager.setShutdownTask();
+            disableButtons(false);
+            clear();
+            getSinogramImage().setImage(null);
+            getMainGraphicContext().clearRect(0, 0, 255, 255);
+            infoLabel.setText(" ");
+        });
+        // FILE CHOOSER SETUP
         chooseFileButton.setOnAction((ActionEvent actionEvent) -> {
             FileChooser fileChooser = new FileChooser();
             configureFileChooser(fileChooser);
-            File file = fileChooser.showOpenDialog((Stage) startButton.getScene().getWindow());
+            File file = fileChooser.showOpenDialog(startButton.getScene().getWindow());
             if (file != null) {
                 try {
                     setBufferedImage(ImageIO.read(file));
@@ -180,23 +196,13 @@ public class Controller implements Initializable {
 
             }
         });
-        stopButton.setOnAction((ActionEvent actionEvent) -> {
-            computationManager.setShutdownTask();
-            startButton.setDisable(false);
-            startManuallyButton.setDisable(false);
-            clear();
-            getSinogramImage().setImage(null);
-            getMainGraphicContext().clearRect(0, 0, 255, 255);
-        });
     }
 
     private static void configureFileChooser(final FileChooser fileChooser) {
         fileChooser.setTitle("View Pictures");
         fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Images", "*.*"),
-                new FileChooser.ExtensionFilter("JPG", "*.jpg"),
-                new FileChooser.ExtensionFilter("PNG", "*.png")
+                new FileChooser.ExtensionFilter("JPG", "*.jpg", "*.png", "*.JPG", "*.PNG")
         );
     }
 
@@ -243,7 +249,8 @@ public class Controller implements Initializable {
     TextField getNameTextEdit() {return nameTextEdit;}
     TextField getAgeTextEdit() {return ageTextEdit;}
     TextArea getCommentsTextEdit() {return commentsTextEdit;}
-    public ChoiceBox getSexChoiceBox() {return sexChoiceBox;}
+    ChoiceBox getSexChoiceBox() {return sexChoiceBox;}
+    Label getInfoLabel() {return infoLabel;}
 
     // SETTERS
     float getAlfa() {

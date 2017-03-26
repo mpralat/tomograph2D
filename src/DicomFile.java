@@ -1,3 +1,4 @@
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.*;
@@ -119,6 +120,12 @@ public class DicomFile {
         if ((jpgLen&1) != 0) dos.write(0);
         dos.writeHeader(Tag.SequenceDelimitationItem, null, 0);
         dos.close();
+        Platform.runLater(
+                () -> {
+                    controller.getInfoLabel().setText("DICOM file saved.");
+                }
+        );
+
 
     }
 }

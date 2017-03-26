@@ -75,6 +75,7 @@
                 </items>
             </ChoiceBox>
             <Label layoutX="418.0" layoutY="83.0" prefHeight="16.0" prefWidth="106.0" text="Patient's sex" />
+            <Label fx:id="infoLabel" layoutX="822.0" layoutY="118.0" prefHeight="16.0" prefWidth="225.0" text="   " />
          </children>
       </Pane>
    </children>
