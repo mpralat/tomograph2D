@@ -21,7 +21,6 @@ To make the image sharper and less blurry, we've added a filtered backprojection
 <a href="url"><img src="https://github.com/mpralat/tomograph2D/blob/master/output/GrayScaleWithFilterd.jpg" align="center" height="250" width="250" ></a>
 </td>
 </tr>
-[Original image, sinogram and sinogram after filtration]()
 
 ## Reconstructing the image
 To reconstruct the image, the Inverse Radon Transform was applied to the filtered Sinogram image.
